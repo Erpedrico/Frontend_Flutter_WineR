@@ -17,20 +17,20 @@ class UserService {
 
   //Función createUser
   Future<dynamic> createUser(UserModel newUser) async {
-    print('createUser');
-    print('try');
+    //print('createUser');
+    //print('try');
     //Aquí llamamos a la función request
-    print('request');
-    print(newUser.toJson());
+    //print('request');
+    //print(newUser.toJson());
     // Utilizar Dio para enviar la solicitud POST a http://127.0.0.1:3000/user
     Response response =
         await dio.post('$baseUrl/api/user', data: newUser.toJson());
-    print('response');
+    //print('response');
     token = response.headers['auth-token']?.first; // Accede al primer valor del header
       if (token != null) {
-        print('Token: $token');
+        //print('Token: $token');
       } else {
-        print('No token found');
+        //print('No token found');
       }
     //En response guardamos lo que recibimos como respuesta
     //Printeamos los datos recibidos

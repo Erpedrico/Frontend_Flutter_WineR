@@ -1,6 +1,12 @@
 import 'dart:convert';
 import 'package:flutter_application_1/models/experienceModel.dart';
+import 'package:flutter_application_1/models/userModel.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_application_1/providers/perfilProvider.dart';
+import 'package:http/http.dart' as http;
+import 'package:latlong2/latlong.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter/src/widgets/framework.dart';
 
 class ExperienceService {
   final String baseUrl = "http://127.0.0.1:3000/api"; // URL de tu backend web
@@ -55,9 +61,8 @@ class ExperienceService {
       List<dynamic> responseData = res.data;
       print(responseData);
       // Convertir la respuesta en una lista de ExperienceModel
-      List<ExperienceModel> experiences = responseData
-          .map((data) => ExperienceModel.fromJson(data))
-          .toList();
+      List<ExperienceModel> experiences =
+          responseData.map((data) => ExperienceModel.fromJson(data)).toList();
 
       return experiences;
     } catch (e) {
@@ -67,7 +72,8 @@ class ExperienceService {
   }
 
   // Función para editar una experiencia existente
-  Future<int> editExperience(ExperienceModel updatedExperience, String id) async {
+  Future<int> editExperience(
+      ExperienceModel updatedExperience, String id) async {
     print('editExperience');
     try {
       // Enviar solicitud PUT para actualizar una experiencia
@@ -102,12 +108,13 @@ class ExperienceService {
     }
   }
 
-  // Función para eliminar una experiencia por descripción
+  // Función para eliminar una experiencia por id
   Future<int> deleteExperienceById(String id) async {
     print('deleteExperienceById');
+    
     try {
       // Enviar solicitud DELETE utilizando la descripción como parámetro en la URL
-    Response response = await dio.delete('$baseUrl/experiencias/$id');
+      Response response = await dio.delete('$baseUrl/experiencias/$id');
 
       // Guardar datos de la respuesta
       data = response.data.toString();
@@ -132,6 +139,36 @@ class ExperienceService {
     } catch (e) {
       print('Error deleting experience: $e');
       return -1;
+    }
+  }
+}
+
+class GeocodingService {
+  // Función para obtener coordenadas a partir de una dirección
+  Future<LatLng?> getCoordinates(String address) async {
+    final url = Uri.parse(
+        'https://nominatim.openstreetmap.org/search?q=$address&format=json&limit=1');
+
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        if (data.isNotEmpty) {
+          final double lat = double.parse(data[0]['lat']);
+          final double lon = double.parse(data[0]['lon']);
+          return LatLng(lat, lon);
+        } else {
+          print('Dirección no encontrada.');
+          return null;
+        }
+      } else {
+        print('Error en la solicitud: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error al geocodificar dirección: $e');
+      return null;
     }
   }
 }

@@ -1,67 +1,19 @@
-/*class ExperienceModel {
-  final String? id;
-  final String? title;
-  final String? owner;
-  //final List<String>? participants;
-  final String? description;
-  final int? price;
-  final String? location;
-  final int? contactnumber;
-  final String? contactmail;
-
-
-  ExperienceModel({
-    this.id,
-    this.title,
-    this.owner,
-    //this.participants,
-    this.description,
-    this.price,
-    this.location,
-    this.contactnumber,
-    this.contactmail
-  });
-
-  factory ExperienceModel.fromJson(Map<String, dynamic> json) {
-    return ExperienceModel(
-      id: json['_id'],
-      title: json['title'],
-      owner: json['owner'],
-      //participants: List<String>.from(json['participants']),
-      description: json['description'],
-      price: json['price'],
-      location: json['location'],
-      contactnumber: json['contactnumber'],
-      contactmail: json['contactmail']
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'title': title,
-      'owner': owner,
-      //'participants': participants,
-      'description': description,
-      'price': price,
-      'location': location,
-      'contactnumber': contactnumber,
-      'contactmail':contactmail
-    };
-  }
-}*/
-
 import 'package:latlong2/latlong.dart';
 
 class ExperienceModel {
-  String? id;
-  String? title;
-  String? description;
-  String? owner;
-  int? price;
-  String? location;
-  int? contactnumber;
-  String? contactmail;
-  LatLng? coordinates; // Coordenadas calculadas (opcional)
+  String? id; // Identificador único de la experiencia
+  String? title; // Título de la experiencia
+  String? description; // Descripción de la experiencia
+  String? owner; // ID del creador
+  int? price; // Precio de la experiencia
+  String? location; // Dirección o ubicación de la experiencia
+  int? contactnumber; // Número de contacto
+  String? contactmail; // Correo electrónico de contacto
+  LatLng? coordinates; // Coordenadas (calculadas en el frontend si es necesario)
+  double? rating; // Calificación de la experiencia
+  List<String>? reviews; // Lista de IDs de las reseñas
+  String? date; // Fecha de la experiencia
+  List<Service>? services; // Lista de servicios ofrecidos
 
   ExperienceModel({
     this.id,
@@ -73,8 +25,13 @@ class ExperienceModel {
     this.contactnumber,
     this.contactmail,
     this.coordinates,
+    this.rating,
+    this.reviews,
+    this.date,
+    this.services,
   });
 
+  // Constructor desde JSON
   factory ExperienceModel.fromJson(Map<String, dynamic> json) {
     return ExperienceModel(
       id: json['id'],
@@ -85,10 +42,19 @@ class ExperienceModel {
       location: json['location'],
       contactnumber: json['contactnumber'],
       contactmail: json['contactmail'],
-      coordinates: LatLng(json['latitude'] ?? 0.0, json['longitude'] ?? 0.0), // Usar los valores directamente
+      coordinates: json.containsKey('latitude') && json.containsKey('longitude')
+          ? LatLng(json['latitude'], json['longitude'])
+          : null,
+      rating: json['rating']?.toDouble(),
+      reviews: (json['reviews'] as List<dynamic>?)?.map((e) => e.toString()).toList(),
+      date: json['date'],
+      services: (json['services'] as List<dynamic>?)
+          ?.map((service) => Service.fromJson(service))
+          .toList(),
     );
   }
 
+  // Método para convertir a JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -99,8 +65,37 @@ class ExperienceModel {
       'location': location,
       'contactnumber': contactnumber,
       'contactmail': contactmail,
-      'latitude': coordinates?.latitude,
-      'longitude': coordinates?.longitude, // Asegúrate de usar las coordenadas en lugar de lat/lng
+      'latitude': coordinates?.latitude, // Enviar coordenadas si están disponibles
+      'longitude': coordinates?.longitude,
+      'rating': rating,
+      'reviews': reviews,
+      'date': date,
+      'services': services?.map((service) => service.toJson()).toList(),
+    };
+  }
+}
+
+// Modelo para representar los servicios
+class Service {
+  String icon; // Icono del servicio (emoji o URL)
+  String label; // Descripción del servicio
+
+  Service({
+    required this.icon,
+    required this.label,
+  });
+
+  factory Service.fromJson(Map<String, dynamic> json) {
+    return Service(
+      icon: json['icon'],
+      label: json['label'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'icon': icon,
+      'label': label,
     };
   }
 }
