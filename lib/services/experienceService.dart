@@ -101,12 +101,13 @@ class ExperienceService {
     }
   }
 
-  // Función para eliminar una experiencia por descripción
+  // Función para eliminar una experiencia por Id
   Future<int> deleteExperienceById(String id) async {
+    
     print('deleteExperienceById');
     try {
-      // Enviar solicitud DELETE utilizando la descripción como parámetro en la URL
-    Response response = await dio.delete('$baseUrl/experiencias/$id');
+      // Enviar solicitud DELETE utilizando la Id como parámetro en la URL
+      Response response = await dio.delete('$baseUrl/experiencias/$id');
 
       // Guardar datos de la respuesta
       data = response.data.toString();
@@ -132,5 +133,6 @@ class ExperienceService {
       print('Error deleting experience: $e');
       return -1;
     }
+    
   }
 }
