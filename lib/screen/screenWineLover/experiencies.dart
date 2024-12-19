@@ -5,6 +5,7 @@ import 'package:flutter_application_1/providers/perfilProvider.dart';
 import 'package:flutter_application_1/services/experienceService.dart';
 import 'package:flutter_application_1/models/experienceModel.dart';
 import 'package:flutter_application_1/Widgets/experienceCard.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
 import 'package:dio/dio.dart';
@@ -58,7 +59,7 @@ class _ExperienciesPageState extends State<ExperienciesPage> {
   Future<void> _deleteExperience(String id) async {
     try {
       int status = await _experienceService.deleteExperienceById(id); // O reemplazar con `deleteExperience(id)` si está implementado
-      if (status == 201) {
+      if (status == 200) {
         setState(() {
           _experiences.removeWhere((experience) => experience.id == id);
         });
@@ -75,6 +76,7 @@ class _ExperienciesPageState extends State<ExperienciesPage> {
       // Obtener el PerfilProvider desde el contexto
       final perfilProvider =
           Provider.of<PerfilProvider>(context, listen: false);
+      
       // Acceder al perfil actual almacenado en el PerfilProvider
       UserModel? perfil = perfilProvider.perfilUsuario;
       String? propietario = perfil?.id;
@@ -146,7 +148,6 @@ class _ExperienciesPageState extends State<ExperienciesPage> {
         reviews: [], // No hay reseñas inicialmente
         date: DateTime.now().toIso8601String(), // Fecha actual en formato ISO
         services: services, // Servicios predefinidos
-      
       );
 
       // Enviar la experiencia al backend
@@ -171,6 +172,7 @@ class _ExperienciesPageState extends State<ExperienciesPage> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Gestión de Experiencias')),
@@ -183,9 +185,79 @@ class _ExperienciesPageState extends State<ExperienciesPage> {
                     itemCount: _experiences.length,
                     itemBuilder: (context, index) {
                       final experience = _experiences[index];
-                      return ExperienceCard(
-                        experience: experience,
-                        onDelete: () => _deleteExperience(experience.id!),
+                      return Card(
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                experience.title ?? 'Sin título',
+                                style: const TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                  'Descripción: ${experience.id ?? 'Sin id'}'),
+                              Text(
+                                  'Descripción: ${experience.description ?? 'Sin descripción'}'),
+                              Text(
+                                  'Propietario: ${experience.owner ?? 'Sin propietario'}'),
+                              Text('Precio: \$${experience.price ?? 'N/A'}'),
+                              Text(
+                                  'Puntuación actual: ${experience.rating?.toStringAsFixed(1) ?? 'N/A'}'),
+                              Text(
+                                  'Localización: ${experience.location ?? 'Sin localización'}'),
+                              const SizedBox(height: 16),
+
+                              // RatingBar para puntuar la experiencia
+                              Text('Puntuar esta experiencia:',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                              RatingBar.builder(
+                                initialRating: experience.rating ?? 0.0,
+                                minRating: 0,
+                                maxRating: 5,
+                                direction: Axis.horizontal,
+                                allowHalfRating: true,
+                                itemCount: 5,
+                                itemSize: 30,
+                                itemPadding:
+                                    EdgeInsets.symmetric(horizontal: 4.0),
+                                itemBuilder: (context, _) => Icon(
+                                  Icons.star,
+                                  color: Colors.amber,
+                                ),
+                                onRatingUpdate: (rating) async {
+                                  // Llamar al servicio para actualizar la puntuación
+                                  final experienceService = ExperienceService();
+                                  final status = await experienceService
+                                      .updateExperienceRating(
+                                          experience.id!, rating);
+
+                                  if (status == 200) {
+                                    setState(() {
+                                      _experiences[index].rating = rating;
+                                    });
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text(
+                                              'Puntuación actualizada con éxito')),
+                                    );
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text(
+                                              'Error al actualizar la puntuación')),
+                                    );
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
                       );
                     },
                   ),
@@ -212,10 +284,6 @@ class _ExperienciesPageState extends State<ExperienciesPage> {
                           controller: _descriptionController,
                           decoration: InputDecoration(labelText: 'Descripción'),
                         ),
-                        /*TextField(
-                          controller: _ownerController,
-                          decoration: InputDecoration(labelText: 'Propietario'),
-                        ),*/
                         TextField(
                           controller: _priceController,
                           decoration: InputDecoration(labelText: 'Precio'),

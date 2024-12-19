@@ -135,4 +135,41 @@ class ExperienceService {
     }
     
   }
+  // Función para actualizar el rating de una experiencia
+  Future<int> updateExperienceRating(String id, double rating) async {
+    print('updateExperienceRating');
+    try {
+      // Enviar solicitud PATCH para actualizar solo el rating
+      Response response = await dio.patch(
+        '$baseUrl/experiencias/$id/ratings',
+        data: {'rating': rating}, // Solo enviamos la nueva puntuación
+      );
+
+      // Guardar datos de la respuesta
+      data = response.data.toString();
+      statusCode = response.statusCode;
+      print('Data: $data');
+      print('Status code: $statusCode');
+
+      // Verificar el código de estado
+      if (statusCode == 200) {
+        print('200');
+        return 200; // Éxito
+      } else if (statusCode == 400) {
+        print('400');
+        return 400; // Error de cliente
+      } else if (statusCode == 500) {
+        print('500');
+        return 500; // Error del servidor
+      } else {
+        print('-1');
+        return -1; // Otro error
+      }
+    } catch (e) {
+      print('Error updating experience rating: $e');
+      return -1;
+    }
+  }
+
+  
 }
