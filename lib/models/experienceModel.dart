@@ -14,6 +14,7 @@ class ExperienceModel {
   List<String>? reviews; // Lista de IDs de las reseñas
   String? date; // Fecha de la experiencia
   List<Service>? services; // Lista de servicios ofrecidos
+  int? averageRating;
 
   ExperienceModel({
     this.id,
@@ -29,6 +30,7 @@ class ExperienceModel {
     this.reviews,
     this.date,
     this.services,
+    this.averageRating,
   });
 
   // Constructor desde JSON
@@ -51,6 +53,7 @@ class ExperienceModel {
       services: (json['services'] as List<dynamic>?)
           ?.map((service) => Service.fromJson(service))
           .toList(),
+      averageRating: json[ 'averageRating']
     );
   }
 
@@ -71,6 +74,7 @@ class ExperienceModel {
       'reviews': reviews,
       'date': date,
       'services': services?.map((service) => service.toJson()).toList(),
+      'averageRating': averageRating,
     };
   }
 }
