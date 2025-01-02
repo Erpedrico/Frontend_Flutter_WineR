@@ -24,11 +24,9 @@ class _ExperienciesPageState extends State<ExperienciesPage> {
 
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  //final TextEditingController _ownerController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
-  final TextEditingController _contactnumberController =
-      TextEditingController();
+  final TextEditingController _contactnumberController = TextEditingController();
   final TextEditingController _contactmailController = TextEditingController();
 
   @override
@@ -58,25 +56,49 @@ class _ExperienciesPageState extends State<ExperienciesPage> {
 
   Future<void> _deleteExperience(String id) async {
     try {
-      int status = await _experienceService.deleteExperienceById(
-          id); // O reemplazar con `deleteExperience(id)` si está implementado
-      if (status == 201) {
+      int status = await _experienceService.deleteExperienceById(id); // O reemplazar con `deleteExperience(id)` si está implementado
+      if (status == 200) {
         setState(() {
           _experiences.removeWhere((experience) => experience.id == id);
         });
+        _loadExperiences(); // Recargar la lista de experiencias
       } else {
         print('Error deleting experience');
       }
     } catch (e) {
       print('Error deleting experience: $e');
     }
+    _loadExperiences(); // Recargar la lista de experiencias
   }
 
+  Future<bool> _showDeleteConfirmationDialog(BuildContext context) async {
+  return await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Confirmar eliminación'),
+        content: const Text('¿Estás seguro de que deseas eliminar esta experiencia?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Eliminar'),
+          ),
+        ],
+      );
+    },
+  ) ?? false;
+  }
+  
   Future<void> _createExperience() async {
     try {
       // Obtener el PerfilProvider desde el contexto
       final perfilProvider =
           Provider.of<PerfilProvider>(context, listen: false);
+
       // Acceder al perfil actual almacenado en el PerfilProvider
       UserModel? perfil = perfilProvider.perfilUsuario;
       String? propietario = perfil?.id;
@@ -148,6 +170,7 @@ class _ExperienciesPageState extends State<ExperienciesPage> {
         reviews: [], // No hay reseñas inicialmente
         date: DateTime.now().toIso8601String(), // Fecha actual en formato ISO
         services: services, // Servicios predefinidos
+        averageRating: 0.0,
       );
 
       // Enviar la experiencia al backend
@@ -171,93 +194,32 @@ class _ExperienciesPageState extends State<ExperienciesPage> {
     }
   }
 
-  @override
-  @override
+@override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Gestión de Experiencias')),
+      appBar: AppBar(title: const Text('Gestión de Experiencias')),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
                 Expanded(
                   child: ListView.builder(
                     itemCount: _experiences.length,
                     itemBuilder: (context, index) {
-                      final experience = _experiences[index];
-                      return Card(
-                        
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                experience.title ?? 'Sin título',
-                                style: const TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.bold),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                  'Descripción: ${experience.description ?? 'Sin descripción'}'),
-                              Text(
-                                  'Propietario: ${experience.owner ?? 'Sin propietario'}'),
-                              Text(
-                                  'Precio: \$${experience.price ?? 'N/A'}'),
-                              Text(
-                                  'Puntuación actual: ${experience.rating?.toStringAsFixed(1) ?? 'N/A'}'),
-                              Text(
-                                  'Localización: ${experience.location ?? 'Sin localización'}'),
-                              const SizedBox(height: 16),
-
-                              // RatingBar para puntuar la experiencia
-                              Text('Puntuar esta experiencia:',
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.bold)),
-                              RatingBar.builder(
-                                initialRating: experience.rating ?? 0.0,
-                                minRating: 0,
-                                maxRating: 5,
-                                direction: Axis.horizontal,
-                                allowHalfRating: true,
-                                itemCount: 5,
-                                itemSize: 30,
-                                itemPadding:
-                                    EdgeInsets.symmetric(horizontal: 4.0),
-                                itemBuilder: (context, _) => Icon(
-                                  Icons.star,
-                                  color: Colors.amber,
-                                ),
-                                onRatingUpdate: (rating) async {
-                                  // Llamar al servicio para actualizar la puntuación
-                                  final experienceService = ExperienceService();
-                                  final status = await experienceService
-                                      .updateExperienceRating(
-                                          experience.id!, rating);
-
-                                  if (status == 200) {
-                                    setState(() {
-                                      _experiences[index].rating = rating;
-                                    });
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content: Text(
-                                              'Puntuación actualizada con éxito')),
-                                    );
-                                  } else {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content: Text(
-                                              'Error al actualizar la puntuación')),
-                                    );
-                                  }
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
+                      return ExperienceCard(
+                        experience: _experiences[index],
+                        onDelete: () async {
+                          final confirm = await _showDeleteConfirmationDialog(context);
+                          if (confirm) {
+                            await _deleteExperience(_experiences[index].id!);
+                            _loadExperiences();
+                          }
+                        },
+                        onRatingUpdate: (rating) async {
+                          setState(() {
+                            _experiences[index].rating = rating;
+                          });
+                        },
                       );
                     },
                   ),
@@ -268,51 +230,53 @@ class _ExperienciesPageState extends State<ExperienciesPage> {
                       _showForm = !_showForm;
                     });
                   },
-                  child: Text(
-                      _showForm ? 'Ocultar Formulario' : 'Mostrar Formulario'),
+                  child: Text(_showForm ? 'Ocultar Formulario' : 'Mostrar Formulario'),
                 ),
-                if (_showForm)
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      children: [
-                        TextField(
-                          controller: _titleController,
-                          decoration: InputDecoration(labelText: 'Titulo'),
-                        ),
-                        TextField(
-                          controller: _descriptionController,
-                          decoration: InputDecoration(labelText: 'Descripción'),
-                        ),
-                        TextField(
-                          controller: _priceController,
-                          decoration: InputDecoration(labelText: 'Precio'),
-                        ),
-                        TextField(
-                          controller: _locationController,
-                          decoration:
-                              InputDecoration(labelText: 'Localización'),
-                        ),
-                        TextField(
-                          controller: _contactnumberController,
-                          decoration:
-                              InputDecoration(labelText: 'Número de contacto'),
-                        ),
-                        TextField(
-                          controller: _contactmailController,
-                          decoration:
-                              InputDecoration(labelText: 'Correo de contacto'),
-                        ),
-                        const SizedBox(height: 10),
-                        ElevatedButton(
-                          onPressed: _createExperience,
-                          child: Text('Crear Experiencia'),
-                        ),
-                      ],
-                    ),
-                  ),
+                if (_showForm) _buildForm(),
               ],
             ),
+    );
+  }
+
+  Widget _buildForm() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        children: [
+          TextField(
+            controller: _titleController,
+            decoration: const InputDecoration(labelText: 'Título'),
+          ),
+          TextField(
+            controller: _descriptionController,
+            decoration: const InputDecoration(labelText: 'Descripción'),
+          ),
+          TextField(
+            controller: _priceController,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(labelText: 'Precio'),
+          ),
+          TextField(
+            controller: _locationController,
+            decoration: const InputDecoration(labelText: 'Localización'),
+          ),
+          TextField(
+            controller: _contactnumberController,
+            keyboardType: TextInputType.phone,
+            decoration: const InputDecoration(labelText: 'Número de contacto'),
+          ),
+          TextField(
+            controller: _contactmailController,
+            keyboardType: TextInputType.emailAddress,
+            decoration: const InputDecoration(labelText: 'Correo de contacto'),
+          ),
+          const SizedBox(height: 10),
+          ElevatedButton(
+            onPressed: _createExperience,
+            child: const Text('Crear Experiencia'),
+          ),
+        ],
+      ),
     );
   }
 }

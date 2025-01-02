@@ -14,7 +14,7 @@ class ExperienceModel {
   List<String>? reviews; // Lista de IDs de las reseñas
   String? date; // Fecha de la experiencia
   List<Service>? services; // Lista de servicios ofrecidos
-  int? averageRating;
+  double? averageRating;
 
   ExperienceModel({
     this.id,
@@ -47,13 +47,13 @@ class ExperienceModel {
       coordinates: json.containsKey('latitude') && json.containsKey('longitude')
           ? LatLng(json['latitude'], json['longitude'])
           : null,
-      rating: json['rating']?.toDouble(),
+      rating: (json['rating'] != null) ? json['rating'].toDouble() : null,
       reviews: (json['reviews'] as List<dynamic>?)?.map((e) => e.toString()).toList(),
       date: json['date'],
       services: (json['services'] as List<dynamic>?)
           ?.map((service) => Service.fromJson(service))
           .toList(),
-      averageRating: json[ 'averageRating']
+      averageRating: (json['averageRating'] != null) ? json['averageRating'].toDouble() : null, // Conversión a double
     );
   }
 

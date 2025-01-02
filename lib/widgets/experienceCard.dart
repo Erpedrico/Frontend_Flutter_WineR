@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/providers/perfilProvider.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:provider/provider.dart';
 import '../models/experienceModel.dart';
 import '../services/experienceService.dart';
 import 'package:http/http.dart' as http;
@@ -41,8 +43,7 @@ class _ExperienceCardState extends State<ExperienceCard> {
       setState(() {
         _coordinates = coords;
         if (coords != null) {
-          _bounds =
-              LatLngBounds(coords, coords); // Ajusta los límites al marcador
+          _bounds = LatLngBounds(coords, coords);
         }
       });
     }
@@ -76,24 +77,45 @@ class _ExperienceCardState extends State<ExperienceCard> {
   }
 
   Future<void> _updateRating(double rating) async {
+    
+    final user = context.read<PerfilProvider>().getUser();
+
+    if (widget.experience.id == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error: ID de experiencia no válido')),
+      );
+      return;
+    }
+
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Usuario no logueado')),
+      );
+      return;
+    }
+
+    final userId = user.id.toString();
     final experienceService = ExperienceService();
     final status = await experienceService.updateExperienceRating(
-        widget.experience.id!, rating);
+      widget.experience.id!,
+      rating,
+      userId,
+    );
 
     if (status == 200) {
       setState(() {
         _currentRating = rating;
+        widget.onRatingUpdate(rating); // Notificar al parent widget de la actualización
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Puntuación actualizada con éxito')),
+        const SnackBar(content: Text('Puntuación actualizada con éxito')),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al actualizar la puntuación')),
+        const SnackBar(content: Text('Error al actualizar la puntuación')),
       );
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -109,53 +131,31 @@ class _ExperienceCardState extends State<ExperienceCard> {
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            Text(
-                'Descripción: ${widget.experience.description ?? 'Sin descripción'}'),
-            Text(
-                'Propietario: ${widget.experience.owner ?? 'Sin propietario'}'),
-            Text(
-                'Precio: \$${widget.experience.price ?? 'N/A'}'),
-            Text(
-                'Puntuación actual: ${_currentRating?.toStringAsFixed(1) ?? 'N/A'}'),
-            /*Text(
-                'Puntuación promedio: ${widget.experience.rating?.toStringAsFixed(1) ?? 'N/A'}'),*/
-
-            Text(
-                'Localización: ${widget.experience.location ?? 'Sin localización'}'),
-            Text(
-                'Teléfono: ${widget.experience.contactnumber ?? 'Sin número'}'),
-            Text(
-                'Correo: ${widget.experience.contactmail ?? 'Sin correo'}'),
-            Text(
-                'Latitud: ${_coordinates?.latitude ?? 'Sin latitud'}'),
-            Text(
-                'Longitud: ${_coordinates?.longitude ?? 'Sin longitud'}'),
+            Text('Descripción: ${widget.experience.description ?? 'Sin descripción'}'),
+            Text('Propietario: ${widget.experience.owner ?? 'Sin propietario'}'),
+            Text('Precio: \$${widget.experience.price ?? 'N/A'}'),
+            Text('Puntuación actual: ${_currentRating?.toStringAsFixed(1) ?? 'N/A'}'),
+            Text('Calificación promedio: ${widget.experience.averageRating?.toStringAsFixed(1) ?? 'N/A'}'), // Muestra la calificación promedio
+            Text('Localización: ${widget.experience.location ?? 'Sin localización'}'),
             const SizedBox(height: 16),
             Container(
-              height: 200, // Altura fija del mapa
-              width: double.infinity, // Ocupa todo el ancho disponible
+              height: 200,
+              width: double.infinity,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10), // Bordes redondeados
-                border: Border.all(
-                    color: Colors.grey), // Borde gris alrededor del mapa
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.grey),
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(
-                    10), // Mantiene los bordes redondeados
+                borderRadius: BorderRadius.circular(10),
                 child: FlutterMap(
                   options: MapOptions(
-                    bounds:
-                        _bounds, // Ajusta automáticamente la vista a los límites
-                    boundsOptions: FitBoundsOptions(
-                      padding:
-                          EdgeInsets.all(10), // Margen alrededor de los límites
-                    ),
+                    bounds: _bounds,
+                    boundsOptions: FitBoundsOptions(padding: EdgeInsets.all(10)),
                     zoom: 13.0,
                   ),
                   children: [
                     TileLayer(
-                      urlTemplate:
-                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                      urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                       subdomains: ['a', 'b', 'c'],
                     ),
                     if (_coordinates != null)
@@ -163,7 +163,7 @@ class _ExperienceCardState extends State<ExperienceCard> {
                         markers: [
                           Marker(
                             point: _coordinates!,
-                            builder: (ctx) => Icon(
+                            builder: (ctx) => const Icon(
                               Icons.location_on,
                               color: Colors.red,
                               size: 30.0,
@@ -178,8 +178,10 @@ class _ExperienceCardState extends State<ExperienceCard> {
             const SizedBox(height: 16),
 
             // RatingBar para puntuar la experiencia
-            Text('Puntuar esta experiencia:',
-                style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text(
+              'Puntuar esta experiencia:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             RatingBar.builder(
               initialRating: widget.experience.rating ?? 0.0,
               minRating: 0,
@@ -188,39 +190,18 @@ class _ExperienceCardState extends State<ExperienceCard> {
               allowHalfRating: true,
               itemCount: 5,
               itemSize: 30,
-              itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
-              itemBuilder: (context, _) => Icon(
+              itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+              itemBuilder: (context, _) => const Icon(
                 Icons.star,
                 color: Colors.amber,
               ),
-              
-              onRatingUpdate: (rating) async {
-                // Actualiza el rating en el backend y el estado local
-                final experienceService = ExperienceService();
-                final status = await experienceService.updateExperienceRating(
-                    widget.experience.id!, rating);
-                    
-
-                if (status == 200) {
-                  setState(() {
-                    _currentRating = rating;
-                  });
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Puntuación actualizada con éxito')),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                        content: Text('Error al actualizar la puntuación')),
-                  );
-                }
-              },
+              onRatingUpdate: _updateRating,
             ),
 
             Align(
               alignment: Alignment.centerRight,
               child: IconButton(
-                icon: Icon(Icons.delete, color: Colors.red),
+                icon: const Icon(Icons.delete, color: Colors.red),
                 onPressed: widget.onDelete,
               ),
             ),
@@ -230,3 +211,4 @@ class _ExperienceCardState extends State<ExperienceCard> {
     );
   }
 }
+
