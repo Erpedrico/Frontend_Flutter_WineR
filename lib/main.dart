@@ -15,8 +15,12 @@ import 'package:flutter_application_1/screen/screenWineMaker/logInWM.dart';
 import 'package:flutter_application_1/screen/screenWineMaker/registerWM.dart';
 import 'package:flutter_application_1/widgets/bottomNavigationBarWM.dart';
 import 'package:flutter_application_1/widgets/tabBarScaffoldWM.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(
     MultiProvider(
       providers: [

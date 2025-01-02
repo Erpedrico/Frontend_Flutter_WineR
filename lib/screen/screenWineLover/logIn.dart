@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/models/userModel.dart';
 import 'package:flutter_application_1/providers/perfilProvider.dart';
 import 'package:flutter_application_1/services/userService.dart';
+import 'package:flutter_application_1/services/auth_services.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
@@ -75,6 +76,16 @@ class _LogInPageState extends State<LogInPage> {
     Get.offNamed('/');
   }
 
+  void logInWithGoogle() async {
+    final credenciales = await AuthService().signInWithGoogle();
+
+    debugPrint(credenciales?.user?.displayName);
+    debugPrint(credenciales?.user?.photoURL);
+    debugPrint(credenciales?.user?.email);
+
+    Get.offNamed('/main');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -118,6 +129,18 @@ class _LogInPageState extends State<LogInPage> {
                 ElevatedButton(
                   onPressed: toMainPage,
                   child: Text('Volver a la pagina principal',
+                  style: TextStyle(color: Colors.white), // Texto blanco
+                ),
+                style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFFB04D47), // Fondo rosa-rojo (puedes cambiar el valor según tu preferencia)
+                shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20), // Bordes redondeados
+                ),
+                ),
+              ),
+              ElevatedButton(
+                  onPressed: logInWithGoogle,
+                  child: Text('Iniciar sesion con google',
                   style: TextStyle(color: Colors.white), // Texto blanco
                 ),
                 style: ElevatedButton.styleFrom(
