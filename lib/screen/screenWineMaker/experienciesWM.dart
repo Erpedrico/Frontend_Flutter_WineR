@@ -4,19 +4,19 @@ import 'package:flutter_application_1/models/userModel.dart';
 import 'package:flutter_application_1/providers/perfilProvider.dart';
 import 'package:flutter_application_1/services/experienceService.dart';
 import 'package:flutter_application_1/models/experienceModel.dart';
-import 'package:flutter_application_1/Widgets/experienceCard.dart';
+import 'package:flutter_application_1/Widgets/experienceCardWM.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
 import 'package:dio/dio.dart';
 import 'package:provider/provider.dart';
 
-class ExperienciesPage extends StatefulWidget {
+class ExperienciesPageWM extends StatefulWidget {
   @override
-  _ExperienciesPageState createState() => _ExperienciesPageState();
+  _ExperienciesPageStateWM createState() => _ExperienciesPageStateWM();
 }
 
-class _ExperienciesPageState extends State<ExperienciesPage> {
+class _ExperienciesPageStateWM extends State<ExperienciesPageWM> {
   final ExperienceService _experienceService = ExperienceService();
   List<ExperienceModel> _experiences = [];
   bool _isLoading = true;
@@ -206,7 +206,7 @@ class _ExperienciesPageState extends State<ExperienciesPage> {
                   child: ListView.builder(
                     itemCount: _experiences.length,
                     itemBuilder: (context, index) {
-                      return ExperienceCard(
+                      return ExperienceCardWM(
                         experience: _experiences[index],
                         onDelete: () async {
                           final confirm = await _showDeleteConfirmationDialog(context);

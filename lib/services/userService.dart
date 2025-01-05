@@ -1,15 +1,20 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_application_1/models/experienceModel.dart';
 import 'package:flutter_application_1/models/userModel.dart';
+import 'package:flutter_application_1/providers/perfilProvider.dart';
+import 'package:provider/provider.dart';
+
 class UserService {
   //final String baseUrl = "http://147.83.7.158:5000";
-  final String baseUrl = "http://127.0.0.1:3000"; // URL de tu backend Web
+  final String baseUrl =
+      "http://127.0.0.1:3000/api/user"; // URL de tu backend Web
   //final String baseUrl = "http://10.0.2.2:3000"; // URL de tu backend Android
   final Dio dio = Dio(); // Usa el prefijo 'Dio' para referenciar la clase Dio
   var statusCode;
   var data;
   String? token;
   UserModel? perfilUsuario;
-  
 
   //Función createUser
   Future<dynamic> createUser(UserModel newUser) async {
@@ -19,15 +24,15 @@ class UserService {
     print('request');
     print(newUser.toJson());
     // Utilizar Dio para enviar la solicitud POST a http://127.0.0.1:3000/user
-    Response response =
-        await dio.post('$baseUrl/api/user', data: newUser.toJson());
+    Response response = await dio.post('$baseUrl', data: newUser.toJson());
     print('response');
-    token = response.headers['auth-token']?.first; // Accede al primer valor del header
-      if (token != null) {
-        print('Token: $token');
-      } else {
-        print('No token found');
-      }
+    token = response
+        .headers['auth-token']?.first; // Accede al primer valor del header
+    if (token != null) {
+      print('Token: $token');
+    } else {
+      print('No token found');
+    }
     //En response guardamos lo que recibimos como respuesta
     //Printeamos los datos recibidos
 
@@ -70,7 +75,7 @@ class UserService {
   Future<List<UserModel>> getUsers() async {
     print('getUsers');
     try {
-      var res = await dio.get('$baseUrl/api/user');
+      var res = await dio.get('$baseUrl');
       List<dynamic> responseData =
           res.data; // Obtener los datos de la respuesta
 
@@ -87,29 +92,28 @@ class UserService {
   }
 
   Future<UserModel?> findUser(String id, String? token) async {
-  try {
-    print('Empieza el findUser');
-    dio.options.headers['auth-token'] = token;
-    print('Le añadimos el tocken');
-    var res = await dio.get('$baseUrl/api/user/findByUsername/$id');
-    print('Ha llegado la respuesta');
-    if (res.statusCode == 200) {
-      print('Usuario no nullo');
-      UserModel user = UserModel.fromJson(res.data);
-      return user; 
-    } if (res.statusCode == 201) {
-      print('Usuario nullo');
-      return null;
+    try {
+      print('Empieza el findUser');
+      dio.options.headers['auth-token'] = token;
+      print('Le añadimos el tocken');
+      var res = await dio.get('$baseUrl/findByUsername/$id');
+      print('Ha llegado la respuesta');
+      if (res.statusCode == 200) {
+        print('Usuario no nullo');
+        UserModel user = UserModel.fromJson(res.data);
+        return user;
+      }
+      if (res.statusCode == 201) {
+        print('Usuario nullo');
+        return null;
+      } else {
+        throw Exception('Failed to load user data');
+      }
+    } catch (e) {
+      print('Error fetching data: $e');
+      throw e;
     }
-    else {
-      throw Exception('Failed to load user data');
-    }
-  } catch (e) {
-    print('Error fetching data: $e');
-    throw e; 
   }
-}
-
 
   Future<int> EditUser(UserModel newUser, String id) async {
     print('createUser');
@@ -118,8 +122,7 @@ class UserService {
     print('request');
 
     // Utilizar Dio para enviar la solicitud POST a http://127.0.0.1:3000/user
-    Response response =
-        await dio.put('$baseUrl/api/user/$id', data: newUser.toJson());
+    Response response = await dio.put('$baseUrl/$id', data: newUser.toJson());
     //En response guardamos lo que recibimos como respuesta
     //Printeamos los datos recibidos
 
@@ -159,8 +162,7 @@ class UserService {
     print('request');
 
     // Utilizar Dio para enviar la solicitud POST a http://127.0.0.1:3000/user
-    Response response =
-        await dio.delete('$baseUrl/api/user/$id');
+    Response response = await dio.delete('$baseUrl/$id');
     //En response guardamos lo que recibimos como respuesta
     //Printeamos los datos recibidos
 
@@ -193,183 +195,296 @@ class UserService {
     }
   }
 
-Future<dynamic> logIn(logIn) async {
-  print('LogIn');
-  print('try');
+  Future<dynamic> logIn(logIn) async {
+    print('LogIn');
+    print('try');
 
-  try {
-    // Realiza la solicitud POST
-    Response response =
-        await dio.post('$baseUrl/api/user/logIn', data: logInToJson(logIn));
+    try {
+      // Realiza la solicitud POST
+      Response response =
+          await dio.post('$baseUrl/logIn', data: logInToJson(logIn));
 
-    // Extrae el token del encabezado
-      token = response.headers['auth-token']?.first; // Accede al primer valor del header
+      // Extrae el token del encabezado
+      token = response
+          .headers['auth-token']?.first; // Accede al primer valor del header
       if (token != null) {
         print('Token: $token');
       } else {
         print('No token found');
       }
 
-    // En response guardamos lo que recibimos como respuesta
-    // Printeamos los datos recibidos
-    data = response.data['user'];
-    print('Data: $data');
+      // En response guardamos lo que recibimos como respuesta
+      // Printeamos los datos recibidos
+      data = response.data['user'];
+      print('Data: $data');
 
-    
-    // Printeamos el status code recibido por el backend
-    statusCode = response.statusCode;
-    print('Status code: $statusCode');
+      // Printeamos el status code recibido por el backend
+      statusCode = response.statusCode;
+      print('Status code: $statusCode');
 
-    // Verifica si el estado es 200 (éxito)
-    if (statusCode == 200) {
-      print('200');
+      // Verifica si el estado es 200 (éxito)
+      if (statusCode == 200) {
+        print('200');
 
-      // Convierte la respuesta en un modelo PerfilModel
-      UserModel perfil = UserModel.fromJson(data);
-      perfil.setToken(token);
-      print('Perfil: ${perfil.username}, ${perfil.mail}, ${perfil.token}');
-      perfilUsuario = perfil;
+        // Convierte la respuesta en un modelo PerfilModel
+        UserModel perfil = UserModel.fromJson(data);
+        perfil.setToken(token);
+        print('Perfil: ${perfil.username}, ${perfil.mail}, ${perfil.token}');
+        perfilUsuario = perfil;
 
-      return perfilUsuario;
-    } else if (statusCode == 400) {
-      print('400');
-      return 400;
-    } else if (statusCode == 500) {
-      print('500');
-      return 500;
-    } else {
-      print('-1');
+        return perfilUsuario;
+      } else if (statusCode == 400) {
+        print('400');
+        return 400;
+      } else if (statusCode == 500) {
+        print('500');
+        return 500;
+      } else {
+        print('-1');
+        return -1;
+      }
+    } catch (e) {
+      // Manejo de errores en caso de excepción
+      print('Error: $e');
       return -1;
     }
-  } catch (e) {
-    // Manejo de errores en caso de excepción
-    print('Error: $e');
-    return -1;
-  }
-}
-
-Future<int> addSolicitud(String? myname, String? hisname) async {
-  if (myname == null || myname.isEmpty || hisname == null || hisname.isEmpty) {
-    throw ArgumentError('myname and hisname cannot be null or empty');
   }
 
-  final encodedMyname = Uri.encodeComponent(myname);
-  final encodedHisname = Uri.encodeComponent(hisname);
-  final url = '$baseUrl/api/user/solicitud/$encodedHisname/$encodedMyname';
+  Future<int> addSolicitud(String? myname, String? hisname) async {
+    if (myname == null ||
+        myname.isEmpty ||
+        hisname == null ||
+        hisname.isEmpty) {
+      throw ArgumentError('myname and hisname cannot be null or empty');
+    }
 
-  try {
-    print('Sending POST request to $url');
-    var response = await dio.get(url);
-    final statusCode = response.statusCode;
+    final encodedMyname = Uri.encodeComponent(myname);
+    final encodedHisname = Uri.encodeComponent(hisname);
+    final url = '$baseUrl/solicitud/$encodedHisname/$encodedMyname';
 
-    print('Response status code: $statusCode');
-    if (statusCode == 200) {
-      return 200;
-    } else if (statusCode == 400) {
-      return 400;
-    } else if (statusCode == 500) {
-      return 500;
-    } else {
+    try {
+      print('Sending POST request to $url');
+      var response = await dio.get(url);
+      final statusCode = response.statusCode;
+
+      print('Response status code: $statusCode');
+      if (statusCode == 200) {
+        return 200;
+      } else if (statusCode == 400) {
+        return 400;
+      } else if (statusCode == 500) {
+        return 500;
+      } else {
+        return -1;
+      }
+    } catch (e) {
+      print('Error during HTTP request: $e');
       return -1;
     }
-  } catch (e) {
-    print('Error during HTTP request: $e');
-    return -1;
   }
-}
 
-  
   Future<int> delSolicitud(String? myname, String? hisname) async {
-    if (myname == null || myname.isEmpty || hisname == null || hisname.isEmpty) {
-    throw ArgumentError('myname and hisname cannot be null or empty');
-  }
+    if (myname == null ||
+        myname.isEmpty ||
+        hisname == null ||
+        hisname.isEmpty) {
+      throw ArgumentError('myname and hisname cannot be null or empty');
+    }
 
-  final encodedMyname = Uri.encodeComponent(myname);
-  final encodedHisname = Uri.encodeComponent(hisname);
-  final url = '$baseUrl/api/user/solicitud/$encodedMyname/$encodedHisname';
+    final encodedMyname = Uri.encodeComponent(myname);
+    final encodedHisname = Uri.encodeComponent(hisname);
+    final url = '$baseUrl/solicitud/$encodedMyname/$encodedHisname';
 
-  try {
-    print('Sending DELETE request to $url');
-    var response = await dio.delete(url);
-    final statusCode = response.statusCode;
+    try {
+      print('Sending DELETE request to $url');
+      var response = await dio.delete(url);
+      final statusCode = response.statusCode;
 
-    print('Response status code: $statusCode');
-    if (statusCode == 200) {
-      return 200;
-    } else if (statusCode == 400) {
-      return 400;
-    } else if (statusCode == 500) {
-      return 500;
-    } else {
+      print('Response status code: $statusCode');
+      if (statusCode == 200) {
+        return 200;
+      } else if (statusCode == 400) {
+        return 400;
+      } else if (statusCode == 500) {
+        return 500;
+      } else {
+        return -1;
+      }
+    } catch (e) {
+      print('Error during HTTP request: $e');
       return -1;
     }
-  } catch (e) {
-    print('Error during HTTP request: $e');
-    return -1;
-  }
-}
-
-Future<int> addFriend(String? myname, String? hisname) async {
-    if (myname == null || myname.isEmpty || hisname == null || hisname.isEmpty) {
-    throw ArgumentError('myname and hisname cannot be null or empty');
   }
 
-  final encodedMyname = Uri.encodeComponent(myname);
-  final encodedHisname = Uri.encodeComponent(hisname);
-  final url = '$baseUrl/api/user/friend/$encodedMyname/$encodedHisname';
+  Future<int> addFriend(String? myname, String? hisname) async {
+    if (myname == null ||
+        myname.isEmpty ||
+        hisname == null ||
+        hisname.isEmpty) {
+      throw ArgumentError('myname and hisname cannot be null or empty');
+    }
 
-  try {
-    print('Sending POST request to $url');
-    var response = await dio.get(url);
-    final statusCode = response.statusCode;
+    final encodedMyname = Uri.encodeComponent(myname);
+    final encodedHisname = Uri.encodeComponent(hisname);
+    final url = '$baseUrl/friend/$encodedMyname/$encodedHisname';
 
-    print('Response status code: $statusCode');
-    if (statusCode == 200) {
-      return 200;
-    } else if (statusCode == 400) {
-      return 400;
-    } else if (statusCode == 500) {
-      return 500;
-    } else {
+    try {
+      print('Sending POST request to $url');
+      var response = await dio.get(url);
+      final statusCode = response.statusCode;
+
+      print('Response status code: $statusCode');
+      if (statusCode == 200) {
+        return 200;
+      } else if (statusCode == 400) {
+        return 400;
+      } else if (statusCode == 500) {
+        return 500;
+      } else {
+        return -1;
+      }
+    } catch (e) {
+      print('Error during HTTP request: $e');
       return -1;
     }
-  } catch (e) {
-    print('Error during HTTP request: $e');
-    return -1;
   }
-}
 
   Future<int> delFriend(String? myname, String? hisname) async {
-    if (myname == null || myname.isEmpty || hisname == null || hisname.isEmpty) {
-    throw ArgumentError('myname and hisname cannot be null or empty');
-  }
+    if (myname == null ||
+        myname.isEmpty ||
+        hisname == null ||
+        hisname.isEmpty) {
+      throw ArgumentError('myname and hisname cannot be null or empty');
+    }
 
-  final encodedMyname = Uri.encodeComponent(myname);
-  final encodedHisname = Uri.encodeComponent(hisname);
-  final url = '$baseUrl/api/user/friend/$encodedMyname/$encodedHisname';
+    final encodedMyname = Uri.encodeComponent(myname);
+    final encodedHisname = Uri.encodeComponent(hisname);
+    final url = '$baseUrl/friend/$encodedMyname/$encodedHisname';
 
-  try {
-    print('Sending DELETE request to $url');
-    var response = await dio.delete(url);
-    final statusCode = response.statusCode;
+    try {
+      print('Sending DELETE request to $url');
+      var response = await dio.delete(url);
+      final statusCode = response.statusCode;
 
-    print('Response status code: $statusCode');
-    if (statusCode == 200) {
-      return 200;
-    } else if (statusCode == 400) {
-      return 400;
-    } else if (statusCode == 500) {
-      return 500;
-    } else {
+      print('Response status code: $statusCode');
+      if (statusCode == 200) {
+        return 200;
+      } else if (statusCode == 400) {
+        return 400;
+      } else if (statusCode == 500) {
+        return 500;
+      } else {
+        return -1;
+      }
+    } catch (e) {
+      print('Error during HTTP request: $e');
       return -1;
     }
-  } catch (e) {
-    print('Error during HTTP request: $e');
-    return -1;
-  }
   }
 
   Map<String, dynamic> logInToJson(logIn) {
     return {'username': logIn.username, 'password': logIn.password};
   }
+
+  Future<int> joinExperience(String userId, String experienceId) async {
+    try {
+      final url = '$baseUrl/addExpToPart/$experienceId/$userId';
+
+      print('Sending POST request to $url');
+      final response = await dio.post(url);
+      final statusCode = response.statusCode;
+
+      print('Response status code: $statusCode');
+      if (statusCode == 200) {
+        return 200; // Éxito
+      } else if (statusCode == 404) {
+        return 404; // Usuario o experiencia no encontrado
+      } else {
+        return statusCode ?? -1; // Otro error
+      }
+    } catch (e) {
+      print('Error during joinExperience: $e');
+      return -1; // Error en la solicitud
+    }
+  }
+
+  Future<List<ExperienceModel>> fetchUserExperiences(String? token) async {
+    try {
+
+      // Configuración de headers
+      if (token == null || token.isEmpty) {
+        throw Exception('Authentication token is missing.');
+      }
+
+      final response = await dio.get(
+        '$baseUrl/experiences/all',
+        options: Options(headers: {
+          'auth-token': token,
+          'Content-Type': 'application/json',
+        }),
+      );
+
+      // Manejo de la respuesta
+      print('Experiences fetched: ${response.data['experiences']}');
+      List<dynamic> experiencesData = response.data['experiences'];
+      return experiencesData
+          .map((experience) => ExperienceModel.fromJson(experience))
+          .toList();
+    } on DioException catch (error) {
+      // Manejo de errores específicos
+      if (error.response?.statusCode == 401) {
+        throw Exception('Unauthorized: Please log in again.');
+      }
+      final errorMessage =
+          error.response?.data['message'] ?? 'Failed to fetch experiences';
+      throw Exception(errorMessage);
+    } catch (error) {
+      // Manejo de errores inesperados
+      throw Exception('An unexpected error occurred: $error');
+    }
+  }
+
+  /*Future<List<ExperienceModel>> fetchUserExperiences(
+      BuildContext context) async {
+    try {
+
+      final perfilProvider =
+          Provider.of<PerfilProvider>(context, listen: false);
+
+      // Acceso al PerfilProvider usando el contexto proporcionado
+      UserModel? perfil = perfilProvider.perfilUsuario;
+      String? token = perfil?.token;
+
+      // Configuración de headers
+      if (token == null || token.isEmpty) {
+        throw Exception('Authentication token is missing.');
+      }
+
+      final response = await dio.get(
+        '$baseUrl/experiences/all',
+        options: Options(headers: {
+          'auth-token': token,
+          'Content-Type': 'application/json',
+        }),
+      );
+
+      // Manejo de la respuesta
+      print('Experiences fetched: ${response.data['experiences']}');
+      List<dynamic> experiencesData = response.data['experiences'];
+      return experiencesData
+          .map((experience) => ExperienceModel.fromJson(experience))
+          .toList();
+    } on DioException catch (error) {
+      // Manejo de errores específicos
+      if (error.response?.statusCode == 401) {
+        throw Exception('Unauthorized: Please log in again.');
+      }
+      final errorMessage =
+          error.response?.data['message'] ?? 'Failed to fetch experiences';
+      throw Exception(errorMessage);
+    } catch (error) {
+      // Manejo de errores inesperados
+      throw Exception('An unexpected error occurred: $error');
+    }
+  }*/
 }

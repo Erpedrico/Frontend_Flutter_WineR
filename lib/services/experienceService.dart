@@ -170,4 +170,32 @@ class ExperienceService {
       return -1;
     }
   }
+
+  // Método para apuntarse a una experiencia
+  Future<int> joinExperience(String experienceId, String userId) async {
+    print('joinExperience');
+    try {
+      // Construir URL
+      final url = '$baseUrl/Participant/$experienceId/$userId';
+
+      // Enviar solicitud POST
+      Response response = await dio.post(url);
+
+      // Verificar el código de estado
+      final statusCode = response.statusCode;
+      print('Status code: $statusCode');
+      print('Data: ${response.data}');
+
+      if (statusCode == 200) {
+        print('Te has apuntado a la experiencia con éxito.');
+        return 200; // Éxito
+      } else {
+        print('Error al apuntarse a la experiencia.');
+        return statusCode ?? -1; // Devuelve el código de error
+      }
+    } catch (e) {
+      print('Error en joinExperience: $e');
+      return -1; // Otro error
+    }
+  }
 }

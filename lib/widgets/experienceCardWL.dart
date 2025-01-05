@@ -8,24 +8,23 @@ import 'package:provider/provider.dart';
 import '../models/experienceModel.dart';
 import '../services/experienceService.dart';
 import 'package:http/http.dart' as http;
+import '../services/userService.dart';
 
-class ExperienceCard extends StatefulWidget {
+class ExperienceCardWL extends StatefulWidget {
   final ExperienceModel experience;
-  final VoidCallback onDelete;
   final ValueChanged<double> onRatingUpdate;
 
-  const ExperienceCard({
+  const ExperienceCardWL({
     Key? key,
     required this.experience,
-    required this.onDelete,
     required this.onRatingUpdate,
   }) : super(key: key);
 
   @override
-  _ExperienceCardState createState() => _ExperienceCardState();
+  _ExperienceCardStateWL createState() => _ExperienceCardStateWL();
 }
 
-class _ExperienceCardState extends State<ExperienceCard> {
+class _ExperienceCardStateWL extends State<ExperienceCardWL> {
   LatLng? _coordinates;
   LatLngBounds? _bounds;
   double? _currentRating;
@@ -77,7 +76,6 @@ class _ExperienceCardState extends State<ExperienceCard> {
   }
 
   Future<void> _updateRating(double rating) async {
-    
     final user = context.read<PerfilProvider>().getUser();
 
     if (widget.experience.id == null) {
@@ -105,7 +103,8 @@ class _ExperienceCardState extends State<ExperienceCard> {
     if (status == 200) {
       setState(() {
         _currentRating = rating;
-        widget.onRatingUpdate(rating); // Notificar al parent widget de la actualización
+        widget.onRatingUpdate(
+            rating); // Notificar al parent widget de la actualización
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Puntuación actualizada con éxito')),
@@ -113,6 +112,45 @@ class _ExperienceCardState extends State<ExperienceCard> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error al actualizar la puntuación')),
+      );
+    }
+  }
+
+  Future<void> _joinExperience() async {
+    final user = context.read<PerfilProvider>().getUser();
+
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Usuario no logueado')),
+      );
+      return;
+    }
+
+    final userId = user.id;
+    final experienceId = widget.experience.id;
+
+    if (experienceId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error: ID de experiencia no válido')),
+      );
+      return;
+    }
+
+    final userService = UserService();
+    final status = await userService.joinExperience(userId!, experienceId);
+
+    if (status == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Te has apuntado con éxito a la experiencia')),
+      );
+    } else if (status == 404) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Usuario o experiencia no encontrado')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error al apuntarse a la experiencia')),
       );
     }
   }
@@ -131,12 +169,17 @@ class _ExperienceCardState extends State<ExperienceCard> {
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            Text('Descripción: ${widget.experience.description ?? 'Sin descripción'}'),
-            Text('Propietario: ${widget.experience.owner ?? 'Sin propietario'}'),
+            Text(
+                'Descripción: ${widget.experience.description ?? 'Sin descripción'}'),
+            Text(
+                'Propietario: ${widget.experience.owner ?? 'Sin propietario'}'),
             Text('Precio: \$${widget.experience.price ?? 'N/A'}'),
-            Text('Puntuación actual: ${_currentRating?.toStringAsFixed(1) ?? 'N/A'}'),
-            Text('Calificación promedio: ${widget.experience.averageRating?.toStringAsFixed(1) ?? 'N/A'}'), // Muestra la calificación promedio
-            Text('Localización: ${widget.experience.location ?? 'Sin localización'}'),
+            Text(
+                'Puntuación actual: ${_currentRating?.toStringAsFixed(1) ?? 'N/A'}'),
+            Text(
+                'Calificación promedio: ${widget.experience.averageRating?.toStringAsFixed(1) ?? 'N/A'}'), // Muestra la calificación promedio
+            Text(
+                'Localización: ${widget.experience.location ?? 'Sin localización'}'),
             const SizedBox(height: 16),
             Container(
               height: 200,
@@ -150,12 +193,14 @@ class _ExperienceCardState extends State<ExperienceCard> {
                 child: FlutterMap(
                   options: MapOptions(
                     bounds: _bounds,
-                    boundsOptions: FitBoundsOptions(padding: EdgeInsets.all(10)),
+                    boundsOptions:
+                        FitBoundsOptions(padding: EdgeInsets.all(10)),
                     zoom: 13.0,
                   ),
                   children: [
                     TileLayer(
-                      urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                      urlTemplate:
+                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                       subdomains: ['a', 'b', 'c'],
                     ),
                     if (_coordinates != null)
@@ -197,13 +242,10 @@ class _ExperienceCardState extends State<ExperienceCard> {
               ),
               onRatingUpdate: _updateRating,
             ),
-
-            Align(
-              alignment: Alignment.centerRight,
-              child: IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: widget.onDelete,
-              ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _joinExperience,
+              child: const Text('Apuntarme a esta experiencia'),
             ),
           ],
         ),
@@ -211,4 +253,3 @@ class _ExperienceCardState extends State<ExperienceCard> {
     );
   }
 }
-

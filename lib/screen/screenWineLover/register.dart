@@ -21,7 +21,6 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController confirmPasswordController = TextEditingController();  // Nuevo campo
   final TextEditingController commentController = TextEditingController();
 
-
   // Llamamos al user service
   final UserService userService = UserService();
 
@@ -41,6 +40,7 @@ class _RegisterPageState extends State<RegisterPage> {
       tipo: 'wineLover',
       amigos: [],
       solicitudes: [],
+      experiences: [],
     );
     print(user.username); 
 
