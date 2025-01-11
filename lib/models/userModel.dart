@@ -11,6 +11,7 @@ class UserModel with ChangeNotifier {
   String _tipo;     
   List<String>? _amigos; 
   List<String>? _solicitudes; 
+  List<String>? _experiences;
 
   // Constructor
   UserModel({
@@ -24,6 +25,7 @@ class UserModel with ChangeNotifier {
     required String tipo,
     List<String>? amigos,
     List<String>? solicitudes,
+    List<String>? experiences,
   })  : _username = username,
         _id = id,
         _token = token,
@@ -33,7 +35,8 @@ class UserModel with ChangeNotifier {
         _comment = comment,
         _tipo = tipo,
         _amigos = amigos,
-        _solicitudes = solicitudes; 
+        _solicitudes = solicitudes, 
+        _experiences = experiences;
 
   // Getters
   String? get username => _username;
@@ -45,7 +48,8 @@ class UserModel with ChangeNotifier {
   String get comment => _comment;
   String get tipo => _tipo;
   List<String>? get amigos => _amigos; 
-  List<String>? get solicitudes => _solicitudes; 
+  List<String>? get solicitudes => _solicitudes;
+  List<String>? get experiences => _experiences; 
 
   // Método para actualizar el usuario
   void setUser({
@@ -59,6 +63,7 @@ class UserModel with ChangeNotifier {
     required String tipo,
     List<String>? amigos,
     List<String>? solicitud,
+    List<String>? experiences,
   }) {
     _username = username;
     _id = id;
@@ -70,6 +75,7 @@ class UserModel with ChangeNotifier {
     _tipo = tipo;
     _amigos = amigos;
     _solicitudes = solicitud;
+    _experiences = experiences;
     notifyListeners();
   }
 
@@ -91,6 +97,7 @@ class UserModel with ChangeNotifier {
       tipo: json['tipo'] ?? 'Sin tipo',  
       amigos: json['amigos'] != null ? List<String>.from(json['amigos']) : [], 
       solicitudes: json['solicitudes'] != null ? List<String>.from(json['solicitudes']) : [], 
+      experiences: json['experiences'] != null ? List<String>.from(json['experiences']) : [], 
     );
   }
 
@@ -106,6 +113,7 @@ class UserModel with ChangeNotifier {
       'habilitado': true,
       'amigos': _amigos,
       'solicitudes':_solicitudes,
+      'experiences' : _experiences,
     };
   }
 }

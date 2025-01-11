@@ -1,8 +1,9 @@
 import 'package:flutter_application_1/models/experienceModel.dart';
+import 'package:flutter_application_1/models/userModel.dart';
 import 'package:dio/dio.dart';
 
 class ExperienceService {
-  final String baseUrl = "http://127.0.0.1:3000/api"; // URL de tu backend web
+  final String baseUrl = "http://127.0.0.1:3000/api/experiencias"; // URL de tu backend web
   //final String baseUrl = "http://10.0.2.2:3000"; // URL de tu backend Android
   final Dio dio = Dio(); // Instancia de Dio para realizar solicitudes HTTP
   var statusCode;
@@ -14,7 +15,7 @@ class ExperienceService {
     try {
       // Enviar solicitud POST para crear una nueva experiencia
       Response response = await dio.post(
-        '$baseUrl/experiencias',
+        '$baseUrl',
         data: newExperience.toJson(),
       );
 
@@ -49,14 +50,13 @@ class ExperienceService {
     print('getExperiences');
     try {
       // Enviar solicitud GET para obtener las experiencias
-      var res = await dio.get('$baseUrl/experiencias');
+      var res = await dio.get('$baseUrl');
       print(res);
       List<dynamic> responseData = res.data;
       print(responseData);
       // Convertir la respuesta en una lista de ExperienceModel
-      List<ExperienceModel> experiences = responseData
-          .map((data) => ExperienceModel.fromJson(data))
-          .toList();
+      List<ExperienceModel> experiences =
+          responseData.map((data) => ExperienceModel.fromJson(data)).toList();
 
       return experiences;
     } catch (e) {
@@ -66,12 +66,13 @@ class ExperienceService {
   }
 
   // Función para editar una experiencia existente
-  Future<int> editExperience(ExperienceModel updatedExperience, String id) async {
+  Future<int> editExperience(
+      ExperienceModel updatedExperience, String id) async {
     print('editExperience');
     try {
       // Enviar solicitud PUT para actualizar una experiencia
       Response response = await dio.put(
-        '$baseUrl/experiencias/$id',
+        '$baseUrl/$id',
         data: updatedExperience.toJson(),
       );
 
@@ -101,12 +102,12 @@ class ExperienceService {
     }
   }
 
-  // Función para eliminar una experiencia por descripción
+  // Función para eliminar una experiencia por Id
   Future<int> deleteExperienceById(String id) async {
     print('deleteExperienceById');
     try {
-      // Enviar solicitud DELETE utilizando la descripción como parámetro en la URL
-    Response response = await dio.delete('$baseUrl/experiencias/$id');
+      // Enviar solicitud DELETE utilizando la Id como parámetro en la URL
+      Response response = await dio.delete('$baseUrl/$id');
 
       // Guardar datos de la respuesta
       data = response.data.toString();
@@ -131,6 +132,70 @@ class ExperienceService {
     } catch (e) {
       print('Error deleting experience: $e');
       return -1;
+    }
+  }
+
+  // Función para actualizar el rating de una experiencia
+  Future<int> updateExperienceRating(String id, double rating, String userId) async {
+    print('updateExperienceRating');
+    try {
+      // Enviar solicitud POST con los datos correctos
+      Response response = await dio.post(
+        '$baseUrl/rate/$id/$userId', // Endpoint ajustado
+        data: {'ratingValue': rating}, // Clave actualizada
+      );
+
+      // Guardar datos de la respuesta
+      final data = response.data.toString();
+      final statusCode = response.statusCode;
+      print('Data: $data');
+      print('Status code: $statusCode');
+
+      // Verificar el código de estado
+      if (statusCode == 200) {
+        print('200');
+        return 200; // Éxito
+      } else if (statusCode == 400) {
+        print('400');
+        return 400; // Error de cliente
+      } else if (statusCode == 500) {
+        print('500');
+        return 500; // Error del servidor
+      } else {
+        print('-1');
+        return -1; // Otro error
+      }
+    } catch (e) {
+      print('Error updating experience rating: $e');
+      return -1;
+    }
+  }
+
+  // Método para apuntarse a una experiencia
+  Future<int> joinExperience(String experienceId, String userId) async {
+    print('joinExperience');
+    try {
+      // Construir URL
+      final url = '$baseUrl/Participant/$experienceId/$userId';
+
+      // Enviar solicitud POST
+      Response response = await dio.post(url);
+
+      // Verificar el código de estado
+      final statusCode = response.statusCode;
+      print('Status code: $statusCode');
+      print('Data: ${response.data}');
+
+      if (statusCode == 200) {
+        print('Te has apuntado a la experiencia con éxito.');
+        return 200; // Éxito
+      } else {
+        print('Error al apuntarse a la experiencia.');
+        return statusCode ?? -1; // Devuelve el código de error
+      }
+    } catch (e) {
+      print('Error en joinExperience: $e');
+      return -1; // Otro error
     }
   }
 }

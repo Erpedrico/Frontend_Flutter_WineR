@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_application_1/conciencia_digital/timerService.dart';
-import 'package:flutter_application_1/screen/screenWineLover/home.dart';
-import 'package:flutter_application_1/screen/screenWineLover/perfilPersonal.dart';
-import 'package:flutter_application_1/screen/screenWineLover/user.dart';
-import 'package:flutter_application_1/screen/screenWineLover/experiencies.dart';
+import 'package:flutter_application_1/screen/screenWineLover/homeWL.dart';
+import 'package:flutter_application_1/screen/screenWineLover/perfilPersonalWL.dart';
+import 'package:flutter_application_1/screen/screenWineLover/userWL.dart';
+import 'package:flutter_application_1/screen/screenWineLover/experienciesWL.dart';
 import 'package:flutter_application_1/screen/screenWineLover/map.dart';
+import 'package:flutter_application_1/screen/screenWineLover/bookings.dart'; // Asegúrate de importar la pantalla de reservas
 
 class BottomNavScaffold extends StatefulWidget {
   @override
@@ -22,10 +23,11 @@ class _BottomNavScaffoldState extends State<BottomNavScaffold> {
   // Lista de widgets para las diferentes pantallas
   final List<Widget> _pages = [   
     UserPage(),          
-    ExperienciesPage(),
+    ExperienciesPageWL(),
     HomePage(),
     MapPage(),
-    PerfilPage(),           
+    PerfilPage(),  
+    BookingsScreen(userToken: 'your-user-token-here'), // Añadir la pantalla de reservas, asegúrate de pasar el token del usuario       
   ];
 
   // Método para manejar el cambio de pestaña
@@ -109,8 +111,13 @@ class _BottomNavScaffoldState extends State<BottomNavScaffold> {
             icon: Icon(Icons.person),
             label: 'Perfil',
           ),
+          BottomNavigationBarItem( // Añadir nuevo botón para reservas
+            icon: Icon(Icons.book),
+            label: 'Reservas',
+          ),
         ],
       ),
     );
   }
 }
+
