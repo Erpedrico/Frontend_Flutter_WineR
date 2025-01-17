@@ -26,8 +26,9 @@ class _ExperienciesPageStateWM extends State<ExperienciesPageWM> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
-  final TextEditingController _contactnumberController = TextEditingController();
-  final TextEditingController _contactmailController = TextEditingController();
+  final TextEditingController _contactnumberController =
+      TextEditingController();
+  //final TextEditingController _contactmailController = TextEditingController();
 
   @override
   void initState() {
@@ -56,7 +57,8 @@ class _ExperienciesPageStateWM extends State<ExperienciesPageWM> {
 
   Future<void> _deleteExperience(String id) async {
     try {
-      int status = await _experienceService.deleteExperienceById(id); // O reemplazar con `deleteExperience(id)` si está implementado
+      int status = await _experienceService.deleteExperienceById(
+          id); // O reemplazar con `deleteExperience(id)` si está implementado
       if (status == 200) {
         setState(() {
           _experiences.removeWhere((experience) => experience.id == id);
@@ -72,27 +74,29 @@ class _ExperienciesPageStateWM extends State<ExperienciesPageWM> {
   }
 
   Future<bool> _showDeleteConfirmationDialog(BuildContext context) async {
-  return await showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Confirmar eliminación'),
-        content: const Text('¿Estás seguro de que deseas eliminar esta experiencia?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Eliminar'),
-          ),
-        ],
-      );
-    },
-  ) ?? false;
+    return await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Confirmar eliminación'),
+              content: const Text(
+                  '¿Estás seguro de que deseas eliminar esta experiencia?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('Cancelar'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text('Eliminar'),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false;
   }
-  
+
   Future<void> _createExperience() async {
     try {
       // Obtener el PerfilProvider desde el contexto
@@ -102,6 +106,7 @@ class _ExperienciesPageStateWM extends State<ExperienciesPageWM> {
       // Acceder al perfil actual almacenado en el PerfilProvider
       UserModel? perfil = perfilProvider.perfilUsuario;
       String? propietario = perfil?.id;
+      String? mail = perfil?.mail;
 
       int? price = int.tryParse(_priceController.text);
       int? contactnumber = int.tryParse(_contactnumberController.text);
@@ -139,12 +144,13 @@ class _ExperienciesPageStateWM extends State<ExperienciesPageWM> {
       }
       // Validar que los campos obligatorios estén presentes
       if (_titleController.text.isEmpty ||
-          _descriptionController.text.isEmpty ||
-          //_ownerController.text.isEmpty ||
-          price == null ||
-          _locationController.text.isEmpty ||
-          contactnumber == null ||
-          _contactmailController.text.isEmpty) {
+              _descriptionController.text.isEmpty ||
+              //_ownerController.text.isEmpty ||
+              price == null ||
+              _locationController.text.isEmpty ||
+              contactnumber == null
+          //_contactmailController.text.isEmpty
+          ) {
         print('Todos los campos obligatorios deben completarse.');
         return;
       }
@@ -159,13 +165,11 @@ class _ExperienciesPageStateWM extends State<ExperienciesPageWM> {
       ExperienceModel newExperience = ExperienceModel(
         title: _titleController.text,
         description: _descriptionController.text,
-        //owner: _ownerController.text,
         owner: propietario,
         price: price,
         location: _locationController.text,
         contactnumber: contactnumber,
-        contactmail: _contactmailController.text,
-        //coordinates: coordinates, // Coordenadas calculadas
+        contactmail: mail,
         rating: 0.0, // Inicializar con una calificación predeterminada
         reviews: [], // No hay reseñas inicialmente
         date: DateTime.now().toIso8601String(), // Fecha actual en formato ISO
@@ -183,7 +187,7 @@ class _ExperienciesPageStateWM extends State<ExperienciesPageWM> {
         _priceController.clear();
         _locationController.clear();
         _contactnumberController.clear();
-        _contactmailController.clear();
+        //_contactmailController.clear();
         _loadExperiences(); // Recargar la lista de experiencias
         print(newExperience);
       } else {
@@ -194,7 +198,7 @@ class _ExperienciesPageStateWM extends State<ExperienciesPageWM> {
     }
   }
 
-@override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Gestión de Experiencias')),
@@ -209,7 +213,8 @@ class _ExperienciesPageStateWM extends State<ExperienciesPageWM> {
                       return ExperienceCardWM(
                         experience: _experiences[index],
                         onDelete: () async {
-                          final confirm = await _showDeleteConfirmationDialog(context);
+                          final confirm =
+                              await _showDeleteConfirmationDialog(context);
                           if (confirm) {
                             await _deleteExperience(_experiences[index].id!);
                             _loadExperiences();
@@ -230,7 +235,8 @@ class _ExperienciesPageStateWM extends State<ExperienciesPageWM> {
                       _showForm = !_showForm;
                     });
                   },
-                  child: Text(_showForm ? 'Ocultar Formulario' : 'Mostrar Formulario'),
+                  child: Text(
+                      _showForm ? 'Ocultar Formulario' : 'Mostrar Formulario'),
                 ),
                 if (_showForm) _buildForm(),
               ],
@@ -265,11 +271,11 @@ class _ExperienciesPageStateWM extends State<ExperienciesPageWM> {
             keyboardType: TextInputType.phone,
             decoration: const InputDecoration(labelText: 'Número de contacto'),
           ),
-          TextField(
+          /*TextField(
             controller: _contactmailController,
             keyboardType: TextInputType.emailAddress,
             decoration: const InputDecoration(labelText: 'Correo de contacto'),
-          ),
+          ),*/
           const SizedBox(height: 10),
           ElevatedButton(
             onPressed: _createExperience,

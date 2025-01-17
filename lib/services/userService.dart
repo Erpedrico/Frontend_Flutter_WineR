@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/models/experienceModel.dart';
@@ -409,7 +411,6 @@ class UserService {
 
   Future<List<ExperienceModel>> fetchUserExperiences(String? token) async {
     try {
-
       // Configuración de headers
       if (token == null || token.isEmpty) {
         throw Exception('Authentication token is missing.');
@@ -443,47 +444,22 @@ class UserService {
     }
   }
 
-  /*Future<List<ExperienceModel>> fetchUserExperiences(
-      BuildContext context) async {
+  Future<String?> getUserNameById(String? userId) async {
+    if (userId == null) return null;
     try {
-
-      final perfilProvider =
-          Provider.of<PerfilProvider>(context, listen: false);
-
-      // Acceso al PerfilProvider usando el contexto proporcionado
-      UserModel? perfil = perfilProvider.perfilUsuario;
-      String? token = perfil?.token;
-
-      // Configuración de headers
-      if (token == null || token.isEmpty) {
-        throw Exception('Authentication token is missing.');
+      final response = await dio.get('$baseUrl/usersId/$userId');
+      if (response.statusCode == 200) {
+        return response.data.toString();
+      } else if (response.statusCode == 404) {
+        // Manejar el caso en que el usuario no se encuentra
+        return null;
+      } else {
+        // Manejar otros códigos de estado inesperados
+        throw Exception('Failed to load user data');
       }
-
-      final response = await dio.get(
-        '$baseUrl/experiences/all',
-        options: Options(headers: {
-          'auth-token': token,
-          'Content-Type': 'application/json',
-        }),
-      );
-
-      // Manejo de la respuesta
-      print('Experiences fetched: ${response.data['experiences']}');
-      List<dynamic> experiencesData = response.data['experiences'];
-      return experiencesData
-          .map((experience) => ExperienceModel.fromJson(experience))
-          .toList();
-    } on DioException catch (error) {
-      // Manejo de errores específicos
-      if (error.response?.statusCode == 401) {
-        throw Exception('Unauthorized: Please log in again.');
-      }
-      final errorMessage =
-          error.response?.data['message'] ?? 'Failed to fetch experiences';
-      throw Exception(errorMessage);
     } catch (error) {
       // Manejo de errores inesperados
       throw Exception('An unexpected error occurred: $error');
     }
-  }*/
+  }
 }

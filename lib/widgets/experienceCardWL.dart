@@ -28,11 +28,14 @@ class _ExperienceCardStateWL extends State<ExperienceCardWL> {
   LatLngBounds? _bounds;
   double? _currentRating;
   List<Map<String, dynamic>> _reviews = [];
+  String? _ownerName;
+  bool _showFullInfo = false;
 
   @override
   void initState() {
     super.initState();
     _fetchCoordinates();
+    _fetchOwnerName();
     _currentRating = widget.experience.rating ?? 0.0;
   }
 
@@ -51,8 +54,7 @@ class _ExperienceCardStateWL extends State<ExperienceCardWL> {
   }
 
   Future<LatLng?> getCoordinates(String address) async {
-    final url = Uri.parse(
-        'https://nominatim.openstreetmap.org/search?q=$address&format=json&limit=1');
+    final url = Uri.parse('https://nominatim.openstreetmap.org/search?q=$address&format=json&limit=1');
 
     try {
       final response = await http.get(url);
@@ -77,56 +79,13 @@ class _ExperienceCardStateWL extends State<ExperienceCardWL> {
     }
   }
 
-  Future<void> _fetchReviews() async {
-    final experienceService = ExperienceService();
-    try {
-      final response =
-          await experienceService.getRatingWithComment(widget.experience.id!);
-      setState(() {
-        _reviews = response;
-      });
-    } catch (e) {
-      print('Error al obtener las valoraciones: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error al cargar valoraciones')),
-      );
-    }
-  }
-
-  Future<void> _showReviewsDialog() async {
-    await _fetchReviews();
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Valoraciones'),
-          content: _reviews.isEmpty
-              ? const Text('No hay valoraciones disponibles.')
-              : SizedBox(
-                  width: double.maxFinite,
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: _reviews.length,
-                    itemBuilder: (context, index) {
-                      final review = _reviews[index];
-                      return ListTile(
-                        leading: Icon(Icons.star, color: Colors.amber),
-                        title: Text(
-                            'Calificación promedio: ${widget.experience.averageRating?.toStringAsFixed(1) ?? 'N/A'}'),
-                        subtitle: Text(review['comment']),
-                      );
-                    },
-                  ),
-                ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cerrar'),
-            ),
-          ],
-        );
-      },
-    );
+  Future<void> _fetchOwnerName() async {
+    final userService = UserService();
+    final id = widget.experience.owner;
+    final ownerName = await userService.getUserNameById(id);
+    setState(() {
+      _ownerName = ownerName;
+    });
   }
 
   Future<void> _confirmJoinExperience() async {
@@ -193,11 +152,63 @@ class _ExperienceCardStateWL extends State<ExperienceCardWL> {
     }
   }
 
+  Future<void> _fetchReviews() async {
+    final experienceService = ExperienceService();
+    try {
+      final response =
+          await experienceService.getRatingWithComment(widget.experience.id!);
+      setState(() {
+        _reviews = response;
+      });
+    } catch (e) {
+      print('Error al obtener las valoraciones: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error al cargar valoraciones')),
+      );
+    }
+  }
+
+  Future<void> _showReviewsDialog() async {
+    await _fetchReviews();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Valoraciones'),
+          content: _reviews.isEmpty
+              ? const Text('No hay valoraciones disponibles.')
+              : SizedBox(
+                  width: double.maxFinite,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: _reviews.length,
+                    itemBuilder: (context, index) {
+                      final review = _reviews[index];
+                      return ListTile(
+                        leading: Icon(Icons.star, color: Colors.amber),
+                        title: Text(
+                            'Calificación promedio: ${widget.experience.averageRating?.toStringAsFixed(1) ?? 'N/A'}'),
+                        subtitle: Text(review['comment']),
+                      );
+                    },
+                  ),
+                ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cerrar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-       child: Padding(
+      child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -207,17 +218,8 @@ class _ExperienceCardStateWL extends State<ExperienceCardWL> {
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            Text(
-                'Descripción: ${widget.experience.description ?? 'Sin descripción'}'),
-            Text(
-                'Propietario: ${widget.experience.owner ?? 'Sin propietario'}'),
-            Text('Precio: \$${widget.experience.price ?? 'N/A'}'),
-            Text(
-                'Puntuación actual: ${_currentRating?.toStringAsFixed(1) ?? 'N/A'}'),
-            Text(
-                'Calificación promedio: ${widget.experience.averageRating?.toStringAsFixed(1) ?? 'N/A'}'), // Muestra la calificación promedio
-            Text(
-                'Localización: ${widget.experience.location ?? 'Sin localización'}'),
+            Text('Descripción: ${widget.experience.description ?? 'Sin descripción'}'),
+            Text('Propietario: ${_ownerName ?? 'Sin propietario'}'),
             const SizedBox(height: 16),
             Container(
               height: 200,
@@ -231,14 +233,12 @@ class _ExperienceCardStateWL extends State<ExperienceCardWL> {
                 child: FlutterMap(
                   options: MapOptions(
                     bounds: _bounds,
-                    boundsOptions:
-                        FitBoundsOptions(padding: EdgeInsets.all(10)),
+                    boundsOptions: FitBoundsOptions(padding: EdgeInsets.all(10)),
                     zoom: 13.0,
                   ),
                   children: [
                     TileLayer(
-                      urlTemplate:
-                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                      urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                       subdomains: ['a', 'b', 'c'],
                     ),
                     if (_coordinates != null)
@@ -259,17 +259,30 @@ class _ExperienceCardStateWL extends State<ExperienceCardWL> {
               ),
             ),
             const SizedBox(height: 16),
-
+            if (_showFullInfo) ...[
+              Text('Precio: \$${widget.experience.price ?? 'N/A'}'),
+              Text('Correo de contacto: ${widget.experience.contactmail ?? 'Sin Correo de contacto'}'),
+              Text('Número de contacto: ${widget.experience.contactnumber ?? 'Sin número de contacto'}'),
+              Text('Puntuación actual: ${_currentRating?.toStringAsFixed(1) ?? 'N/A'}'),
+              Text('Calificación promedio: ${widget.experience.averageRating?.toStringAsFixed(1) ?? 'N/A'}'),
+              ElevatedButton(
+                onPressed: () => _showReviewsDialog(),
+                child: const Text('Ver valoraciones'),
+              ),
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: _confirmJoinExperience,
+                child: const Text('Apuntarme a esta experiencia'),
+              ),
+            ],
+            const SizedBox(height: 8),
             ElevatedButton(
-              onPressed: _showReviewsDialog,
-              child: const Text('Ver valoraciones'),
-            ),
-
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _confirmJoinExperience,
-              //onPressed: _joinExperience,
-              child: const Text('Apuntarme a esta experiencia'),
+              onPressed: () {
+                setState(() {
+                  _showFullInfo = !_showFullInfo;
+                });
+              },
+              child: Text(_showFullInfo ? 'Ver menos' : 'Ver más'),
             ),
           ],
         ),
