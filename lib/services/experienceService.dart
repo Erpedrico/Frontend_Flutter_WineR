@@ -135,42 +135,6 @@ class ExperienceService {
     }
   }
 
-  // Función para actualizar el rating de una experiencia
-  Future<int> updateExperienceRating(String id, double rating, String userId) async {
-    print('updateExperienceRating');
-    try {
-      // Enviar solicitud POST con los datos correctos
-      Response response = await dio.post(
-        '$baseUrl/rate/$id/$userId', // Endpoint ajustado
-        data: {'ratingValue': rating}, // Clave actualizada
-      );
-
-      // Guardar datos de la respuesta
-      final data = response.data.toString();
-      final statusCode = response.statusCode;
-      print('Data: $data');
-      print('Status code: $statusCode');
-
-      // Verificar el código de estado
-      if (statusCode == 200) {
-        print('200');
-        return 200; // Éxito
-      } else if (statusCode == 400) {
-        print('400');
-        return 400; // Error de cliente
-      } else if (statusCode == 500) {
-        print('500');
-        return 500; // Error del servidor
-      } else {
-        print('-1');
-        return -1; // Otro error
-      }
-    } catch (e) {
-      print('Error updating experience rating: $e');
-      return -1;
-    }
-  }
-
   // Método para apuntarse a una experiencia
   Future<int> joinExperience(String experienceId, String userId) async {
     print('joinExperience');
@@ -196,6 +160,49 @@ class ExperienceService {
     } catch (e) {
       print('Error en joinExperience: $e');
       return -1; // Otro error
+    }
+  }
+
+  Future<int> addRatingWithComment(String experienceId, String userId, double rating, String comment) async {
+    try {
+      final response = await dio.post(
+        '$baseUrl/rate/$experienceId/$userId',
+        data: {
+          'ratingValue': rating,
+          'comment': comment,
+        },
+      );
+      print(data);
+      return response.statusCode ?? -1;
+    } catch (e) {
+      print('Error al enviar la valoración: $e');
+      return -1;
+    }
+  }
+
+  /*Future<int> getRatingWithComment(String experienceId,) async {
+    try {
+      final response = await dio.get(
+        '$baseUrl/ratings/$experienceId',
+      );
+      return response.statusCode ?? -1;
+    } catch (e) {
+      print('Error al enviar la valoración: $e');
+      return -1;
+    }
+  }*/
+
+  Future<List<Map<String, dynamic>>> getRatingWithComment(String experienceId) async {
+    try {
+      final response = await dio.get('$baseUrl/ratings/$experienceId');
+      if (response.statusCode == 200) {
+        return List<Map<String, dynamic>>.from(response.data);
+      } else {
+        return [];
+      }
+    } catch (e) {
+      print('Error al obtener las valoraciones: $e');
+      return [];
     }
   }
 }

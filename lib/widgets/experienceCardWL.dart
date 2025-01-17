@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/providers/perfilProvider.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import '../models/experienceModel.dart';
@@ -28,6 +27,7 @@ class _ExperienceCardStateWL extends State<ExperienceCardWL> {
   LatLng? _coordinates;
   LatLngBounds? _bounds;
   double? _currentRating;
+  List<Map<String, dynamic>> _reviews = [];
 
   @override
   void initState() {
@@ -39,12 +39,14 @@ class _ExperienceCardStateWL extends State<ExperienceCardWL> {
   Future<void> _fetchCoordinates() async {
     if (widget.experience.location != null) {
       final coords = await getCoordinates(widget.experience.location!);
-      setState(() {
-        _coordinates = coords;
-        if (coords != null) {
-          _bounds = LatLngBounds(coords, coords);
-        }
-      });
+      if (mounted) {
+        setState(() {
+          _coordinates = coords;
+          if (coords != null) {
+            _bounds = LatLngBounds(coords, coords);
+          }
+        });
+      }
     }
   }
 
@@ -75,45 +77,81 @@ class _ExperienceCardStateWL extends State<ExperienceCardWL> {
     }
   }
 
-  Future<void> _updateRating(double rating) async {
-    final user = context.read<PerfilProvider>().getUser();
-
-    if (widget.experience.id == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error: ID de experiencia no válido')),
-      );
-      return;
-    }
-
-    if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Usuario no logueado')),
-      );
-      return;
-    }
-
-    final userId = user.id.toString();
+  Future<void> _fetchReviews() async {
     final experienceService = ExperienceService();
-    final status = await experienceService.updateExperienceRating(
-      widget.experience.id!,
-      rating,
-      userId,
-    );
-
-    if (status == 200) {
+    try {
+      final response =
+          await experienceService.getRatingWithComment(widget.experience.id!);
       setState(() {
-        _currentRating = rating;
-        widget.onRatingUpdate(
-            rating); // Notificar al parent widget de la actualización
+        _reviews = response;
       });
+    } catch (e) {
+      print('Error al obtener las valoraciones: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Puntuación actualizada con éxito')),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error al actualizar la puntuación')),
+        const SnackBar(content: Text('Error al cargar valoraciones')),
       );
     }
+  }
+
+  Future<void> _showReviewsDialog() async {
+    await _fetchReviews();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Valoraciones'),
+          content: _reviews.isEmpty
+              ? const Text('No hay valoraciones disponibles.')
+              : SizedBox(
+                  width: double.maxFinite,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: _reviews.length,
+                    itemBuilder: (context, index) {
+                      final review = _reviews[index];
+                      return ListTile(
+                        leading: Icon(Icons.star, color: Colors.amber),
+                        title: Text(
+                            'Calificación promedio: ${widget.experience.averageRating?.toStringAsFixed(1) ?? 'N/A'}'),
+                        subtitle: Text(review['comment']),
+                      );
+                    },
+                  ),
+                ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cerrar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _confirmJoinExperience() async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirmar inscripción'),
+          content: const Text('¿Seguro que deseas apuntarte a esta experiencia?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _joinExperience();
+              },
+              child: const Text('Confirmar'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> _joinExperience() async {
@@ -159,7 +197,7 @@ class _ExperienceCardStateWL extends State<ExperienceCardWL> {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Padding(
+       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -210,7 +248,7 @@ class _ExperienceCardStateWL extends State<ExperienceCardWL> {
                             point: _coordinates!,
                             builder: (ctx) => const Icon(
                               Icons.location_on,
-                              color: Colors.red,
+                              color: Color(0xFFF44336),
                               size: 30.0,
                             ),
                           ),
@@ -222,29 +260,15 @@ class _ExperienceCardStateWL extends State<ExperienceCardWL> {
             ),
             const SizedBox(height: 16),
 
-            // RatingBar para puntuar la experiencia
-            const Text(
-              'Puntuar esta experiencia:',
-              style: TextStyle(fontWeight: FontWeight.bold),
+            ElevatedButton(
+              onPressed: _showReviewsDialog,
+              child: const Text('Ver valoraciones'),
             ),
-            RatingBar.builder(
-              initialRating: widget.experience.rating ?? 0.0,
-              minRating: 0,
-              maxRating: 5,
-              direction: Axis.horizontal,
-              allowHalfRating: true,
-              itemCount: 5,
-              itemSize: 30,
-              itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
-              itemBuilder: (context, _) => const Icon(
-                Icons.star,
-                color: Colors.amber,
-              ),
-              onRatingUpdate: _updateRating,
-            ),
+
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: _joinExperience,
+              onPressed: _confirmJoinExperience,
+              //onPressed: _joinExperience,
               child: const Text('Apuntarme a esta experiencia'),
             ),
           ],

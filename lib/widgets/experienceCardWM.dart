@@ -76,7 +76,7 @@ class _ExperienceCardStateWM extends State<ExperienceCardWM> {
     }
   }
 
-  Future<void> _updateRating(double rating) async {
+  /*Future<void> _updateRating(double rating) async {
     
     final user = context.read<PerfilProvider>().getUser();
 
@@ -96,10 +96,11 @@ class _ExperienceCardStateWM extends State<ExperienceCardWM> {
 
     final userId = user.id.toString();
     final experienceService = ExperienceService();
-    final status = await experienceService.updateExperienceRating(
+    final status = await experienceService.addRatingWithComment(
       widget.experience.id!,
       rating,
       userId,
+      comment
     );
 
     if (status == 200) {
@@ -115,7 +116,7 @@ class _ExperienceCardStateWM extends State<ExperienceCardWM> {
         const SnackBar(content: Text('Error al actualizar la puntuación')),
       );
     }
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -178,7 +179,7 @@ class _ExperienceCardStateWM extends State<ExperienceCardWM> {
             const SizedBox(height: 16),
 
             // RatingBar para puntuar la experiencia
-            const Text(
+            /*const Text(
               'Puntuar esta experiencia:',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
@@ -196,7 +197,7 @@ class _ExperienceCardStateWM extends State<ExperienceCardWM> {
                 color: Colors.amber,
               ),
               onRatingUpdate: _updateRating,
-            ),
+            ),*/
 
             Align(
               alignment: Alignment.centerRight,

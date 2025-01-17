@@ -1,15 +1,8 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/models/userModel.dart';
-import 'package:flutter_application_1/providers/perfilProvider.dart';
 import 'package:flutter_application_1/services/experienceService.dart';
 import 'package:flutter_application_1/models/experienceModel.dart';
 import 'package:flutter_application_1/Widgets/experienceCardWL.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:latlong2/latlong.dart';
-import 'package:http/http.dart' as http;
-import 'package:dio/dio.dart';
-import 'package:provider/provider.dart';
+
 
 class ExperienciesPageWL extends StatefulWidget {
   @override

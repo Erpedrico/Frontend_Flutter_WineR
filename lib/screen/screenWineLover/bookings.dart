@@ -3,10 +3,11 @@ import 'package:flutter_application_1/models/experienceModel.dart';
 import 'package:flutter_application_1/models/userModel.dart';
 import 'package:flutter_application_1/providers/perfilProvider.dart';
 import 'package:flutter_application_1/services/userService.dart';
-import 'package:provider/provider.dart';// Asegúrate de tener tu UserService importado
+import 'package:flutter_application_1/widgets/bookingsCardWL.dart';
+import 'package:provider/provider.dart'; // Asegúrate de tener tu UserService importado
 
 class BookingsScreen extends StatefulWidget {
-  final String userToken; // Token del usuario logueado
+  final String userToken;
 
   BookingsScreen({required this.userToken});
 
@@ -18,21 +19,14 @@ class _BookingsScreenState extends State<BookingsScreen> {
   late Future<List<ExperienceModel>> _currentExperiences;
   final UserService _userService = UserService();
 
-   
-
   @override
   void initState() {
-    final perfilProvider =
-          Provider.of<PerfilProvider>(context, listen: false);
-      // Acceder al perfil actual almacenado en el PerfilProvider
-      UserModel? perfil = perfilProvider.perfilUsuario;
-      String? token = perfil?.token;
+    final perfilProvider = Provider.of<PerfilProvider>(context, listen: false);
+    UserModel? perfil = perfilProvider.perfilUsuario;
+    String? token = perfil?.token;
 
     super.initState();
-    // Inicializar el token del servicio de usuario
     _userService.token = widget.userToken;
-    print(token);
-    // Obtener las experiencias del usuario logueado
     _currentExperiences = _userService.fetchUserExperiences(token);
   }
 
@@ -56,13 +50,10 @@ class _BookingsScreenState extends State<BookingsScreen> {
             return ListView.builder(
               itemCount: experiences.length,
               itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(experiences[index].title ?? 'Sin titulo'),
-                  subtitle: Text('ID: ${experiences[index].id}'),
-                  trailing: Icon(Icons.arrow_forward),
-                  onTap: () {
-                    // Aquí puedes manejar la navegación a los detalles de la experiencia
-                    print('Tapped on ${experiences[index].title}');
+                return BookingsCardWL(
+                  experience: experiences[index],
+                  onRatingUpdate: (rating) {
+                    // Acción opcional al actualizar la puntuación
                   },
                 );
               },
@@ -73,3 +64,4 @@ class _BookingsScreenState extends State<BookingsScreen> {
     );
   }
 }
+
