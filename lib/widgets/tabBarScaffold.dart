@@ -3,6 +3,8 @@ import 'package:flutter_application_1/screen/screenWineLover/logInWL.dart';
 import 'package:flutter_application_1/screen/screenWineLover/register.dart';
 
 class TabBarScaffold extends StatelessWidget {
+  const TabBarScaffold({super.key});
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController( 

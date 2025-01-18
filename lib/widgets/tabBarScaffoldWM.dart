@@ -3,6 +3,8 @@ import 'package:flutter_application_1/screen/screenWineMaker/logInWM.dart';
 import 'package:flutter_application_1/screen/screenWineMaker/registerWM.dart';
 
 class TabBarScaffoldWM extends StatelessWidget {
+  const TabBarScaffoldWM({super.key});
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController( 

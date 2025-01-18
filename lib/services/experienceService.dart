@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 
 class ExperienceService {
   final String baseUrl = "http://127.0.0.1:3000/api/experiencias"; // URL de tu backend web
-  //final String baseUrl = "http://10.0.2.2:3000"; // URL de tu backend Android
+  //final String baseUrl = "http://10.0.2.2:3000/api/experiencias"; // URL de tu backend Android
   final Dio dio = Dio(); // Instancia de Dio para realizar solicitudes HTTP
   var statusCode;
   var data;
@@ -15,7 +15,7 @@ class ExperienceService {
     try {
       // Enviar solicitud POST para crear una nueva experiencia
       Response response = await dio.post(
-        '$baseUrl',
+        baseUrl,
         data: newExperience.toJson(),
       );
 
@@ -50,7 +50,7 @@ class ExperienceService {
     print('getExperiences');
     try {
       // Enviar solicitud GET para obtener las experiencias
-      var res = await dio.get('$baseUrl');
+      var res = await dio.get(baseUrl);
       print(res);
       List<dynamic> responseData = res.data;
       print(responseData);
@@ -61,7 +61,7 @@ class ExperienceService {
       return experiences;
     } catch (e) {
       print('Error fetching experiences: $e');
-      throw e;
+      rethrow;
     }
   }
 

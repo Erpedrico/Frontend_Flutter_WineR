@@ -7,6 +7,8 @@ import '../../providers/perfilProvider.dart';
 import '../../widgets/userCard.dart'; 
 
 class UserPage extends StatefulWidget {
+  const UserPage({super.key});
+
   @override
   _UserPageState createState() => _UserPageState();
 }

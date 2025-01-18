@@ -6,6 +6,8 @@ import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
+
   @override
   _RegisterPageState createState() => _RegisterPageState();
 }
@@ -130,26 +132,26 @@ class _RegisterPageState extends State<RegisterPage> {
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: register,
-                child: Text('Registrar',
-              style: TextStyle(color: Colors.white), // Texto blanco
-                ),
                 style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFFB04D47), // Fondo rosa-rojo (puedes cambiar el valor según tu preferencia)
                 shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20), // Bordes redondeados
                 ),
+                ),
+                child: Text('Registrar',
+              style: TextStyle(color: Colors.white), // Texto blanco
                 ),
               ),
               ElevatedButton(
                   onPressed: toMainPage,
-                  child: Text('Volver a la pagina principal',
-                  style: TextStyle(color: Colors.white), // Texto blanco
-                ),
                 style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFFB04D47), // Fondo rosa-rojo (puedes cambiar el valor según tu preferencia)
                 shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20), // Bordes redondeados
                 ),
+                ),
+                  child: Text('Volver a la pagina principal',
+                  style: TextStyle(color: Colors.white), // Texto blanco
                 ),
               ),                
             ],

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/providers/perfilProvider.dart';
+import 'package:flutter_application_1/services/userService.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:latlong2/latlong.dart';
@@ -15,11 +16,11 @@ class ExperienceCardWM extends StatefulWidget {
   final ValueChanged<double> onRatingUpdate;
 
   const ExperienceCardWM({
-    Key? key,
+    super.key,
     required this.experience,
     required this.onDelete,
     required this.onRatingUpdate,
-  }) : super(key: key);
+  });
 
   @override
   _ExperienceCardStateWM createState() => _ExperienceCardStateWM();
@@ -29,23 +30,28 @@ class _ExperienceCardStateWM extends State<ExperienceCardWM> {
   LatLng? _coordinates;
   LatLngBounds? _bounds;
   double? _currentRating;
+  String? _ownerName;
+  bool _showFullInfo = false;
 
   @override
   void initState() {
     super.initState();
     _fetchCoordinates();
+    _fetchOwnerName();
     _currentRating = widget.experience.rating ?? 0.0;
   }
 
   Future<void> _fetchCoordinates() async {
     if (widget.experience.location != null) {
       final coords = await getCoordinates(widget.experience.location!);
-      setState(() {
-        _coordinates = coords;
-        if (coords != null) {
-          _bounds = LatLngBounds(coords, coords);
-        }
-      });
+      if (mounted) {
+        setState(() {
+          _coordinates = coords;
+          if (coords != null) {
+            _bounds = LatLngBounds(coords, coords);
+          }
+        });
+      }
     }
   }
 
@@ -75,49 +81,15 @@ class _ExperienceCardStateWM extends State<ExperienceCardWM> {
       return null;
     }
   }
-
-  /*Future<void> _updateRating(double rating) async {
-    
-    final user = context.read<PerfilProvider>().getUser();
-
-    if (widget.experience.id == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error: ID de experiencia no válido')),
-      );
-      return;
-    }
-
-    if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Usuario no logueado')),
-      );
-      return;
-    }
-
-    final userId = user.id.toString();
-    final experienceService = ExperienceService();
-    final status = await experienceService.addRatingWithComment(
-      widget.experience.id!,
-      rating,
-      userId,
-      comment
-    );
-
-    if (status == 200) {
-      setState(() {
-        _currentRating = rating;
-        widget.onRatingUpdate(rating); // Notificar al parent widget de la actualización
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Puntuación actualizada con éxito')),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error al actualizar la puntuación')),
-      );
-    }
-  }*/
-
+  
+   Future<void> _fetchOwnerName() async {
+    final userService = UserService();
+    final id = widget.experience.owner;
+    final ownerName = await userService.getUserNameById(id);
+    setState(() {
+      _ownerName = ownerName;
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -133,11 +105,7 @@ class _ExperienceCardStateWM extends State<ExperienceCardWM> {
             ),
             const SizedBox(height: 8),
             Text('Descripción: ${widget.experience.description ?? 'Sin descripción'}'),
-            Text('Propietario: ${widget.experience.owner ?? 'Sin propietario'}'),
-            Text('Precio: \$${widget.experience.price ?? 'N/A'}'),
-            Text('Puntuación actual: ${_currentRating?.toStringAsFixed(1) ?? 'N/A'}'),
-            Text('Calificación promedio: ${widget.experience.averageRating?.toStringAsFixed(1) ?? 'N/A'}'), // Muestra la calificación promedio
-            Text('Localización: ${widget.experience.location ?? 'Sin localización'}'),
+            Text('Propietario: ${_ownerName ?? 'Sin propietario'}'),
             const SizedBox(height: 16),
             Container(
               height: 200,
@@ -166,7 +134,7 @@ class _ExperienceCardStateWM extends State<ExperienceCardWM> {
                             point: _coordinates!,
                             builder: (ctx) => const Icon(
                               Icons.location_on,
-                              color: Colors.red,
+                              color: Color(0xFFF44336),
                               size: 30.0,
                             ),
                           ),
@@ -177,27 +145,29 @@ class _ExperienceCardStateWM extends State<ExperienceCardWM> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // RatingBar para puntuar la experiencia
-            /*const Text(
-              'Puntuar esta experiencia:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            RatingBar.builder(
-              initialRating: widget.experience.rating ?? 0.0,
-              minRating: 0,
-              maxRating: 5,
-              direction: Axis.horizontal,
-              allowHalfRating: true,
-              itemCount: 5,
-              itemSize: 30,
-              itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
-              itemBuilder: (context, _) => const Icon(
-                Icons.star,
-                color: Colors.amber,
+            if (_showFullInfo) ...[
+              Text('Precio: \$${widget.experience.price ?? 'N/A'}'),
+              Text('Correo de contacto: ${widget.experience.contactmail ?? 'Sin Correo de contacto'}'),
+              Text('Número de contacto: ${widget.experience.contactnumber ?? 'Sin número de contacto'}'),
+              Text('Puntuación actual: ${_currentRating?.toStringAsFixed(1) ?? 'N/A'}'),
+              Text('Calificación promedio: ${widget.experience.averageRating?.toStringAsFixed(1) ?? 'N/A'}'),
+              Text('Servicios:'),
+              Column(
+                children: widget.experience.services!.map((service) {
+                  return Text('${service.icon} ${service.label}');
+                }).toList(),
               ),
-              onRatingUpdate: _updateRating,
-            ),*/
+            ],
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _showFullInfo = !_showFullInfo;
+                });
+              },
+              child: Text(_showFullInfo ? 'Ver menos' : 'Ver más'),
+            ),
+            const SizedBox(height: 16),
 
             Align(
               alignment: Alignment.centerRight,

@@ -9,6 +9,8 @@ import 'package:flutter_application_1/screen/screenWineLover/map.dart';
 import 'package:flutter_application_1/screen/screenWineLover/bookings.dart'; // Asegúrate de importar la pantalla de reservas
 
 class BottomNavScaffold extends StatefulWidget {
+  const BottomNavScaffold({super.key});
+
   @override
   _BottomNavScaffoldState createState() => _BottomNavScaffoldState();
 }

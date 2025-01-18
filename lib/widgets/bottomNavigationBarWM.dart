@@ -6,6 +6,8 @@ import 'package:flutter_application_1/screen/screenWineMaker/experienciesWM.dart
 
 
 class BottomNavScaffoldWM extends StatefulWidget {
+  const BottomNavScaffoldWM({super.key});
+
   @override
   _BottomNavScaffoldStateWM createState() => _BottomNavScaffoldStateWM();
 }
