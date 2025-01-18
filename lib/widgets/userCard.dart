@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 class UserCard extends StatelessWidget {
   final UserModel user;
 
-  const UserCard({Key? key, required this.user, Row? child}) : super(key: key);
+  const UserCard({super.key, required this.user, Row? child});
 
   @override
   Widget build(BuildContext context) {

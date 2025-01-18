@@ -14,10 +14,10 @@ class ExperienceCardWL extends StatefulWidget {
   final ValueChanged<double> onRatingUpdate;
 
   const ExperienceCardWL({
-    Key? key,
+    super.key,
     required this.experience,
     required this.onRatingUpdate,
-  }) : super(key: key);
+  });
 
   @override
   _ExperienceCardStateWL createState() => _ExperienceCardStateWL();
@@ -54,7 +54,8 @@ class _ExperienceCardStateWL extends State<ExperienceCardWL> {
   }
 
   Future<LatLng?> getCoordinates(String address) async {
-    final url = Uri.parse('https://nominatim.openstreetmap.org/search?q=$address&format=json&limit=1');
+    final url = Uri.parse(
+        'https://nominatim.openstreetmap.org/search?q=$address&format=json&limit=1');
 
     try {
       final response = await http.get(url);
@@ -94,7 +95,8 @@ class _ExperienceCardStateWL extends State<ExperienceCardWL> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Confirmar inscripción'),
-          content: const Text('¿Seguro que deseas apuntarte a esta experiencia?'),
+          content:
+              const Text('¿Seguro que deseas apuntarte a esta experiencia?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -218,7 +220,8 @@ class _ExperienceCardStateWL extends State<ExperienceCardWL> {
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            Text('Descripción: ${widget.experience.description ?? 'Sin descripción'}'),
+            Text(
+                'Descripción: ${widget.experience.description ?? 'Sin descripción'}'),
             Text('Propietario: ${_ownerName ?? 'Sin propietario'}'),
             const SizedBox(height: 16),
             Container(
@@ -233,12 +236,14 @@ class _ExperienceCardStateWL extends State<ExperienceCardWL> {
                 child: FlutterMap(
                   options: MapOptions(
                     bounds: _bounds,
-                    boundsOptions: FitBoundsOptions(padding: EdgeInsets.all(10)),
+                    boundsOptions:
+                        FitBoundsOptions(padding: EdgeInsets.all(10)),
                     zoom: 13.0,
                   ),
                   children: [
                     TileLayer(
-                      urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                      urlTemplate:
+                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                       subdomains: ['a', 'b', 'c'],
                     ),
                     if (_coordinates != null)
@@ -260,11 +265,23 @@ class _ExperienceCardStateWL extends State<ExperienceCardWL> {
             ),
             const SizedBox(height: 16),
             if (_showFullInfo) ...[
-              Text('Precio: \$${widget.experience.price ?? 'N/A'}'),
-              Text('Correo de contacto: ${widget.experience.contactmail ?? 'Sin Correo de contacto'}'),
-              Text('Número de contacto: ${widget.experience.contactnumber ?? 'Sin número de contacto'}'),
-              Text('Puntuación actual: ${_currentRating?.toStringAsFixed(1) ?? 'N/A'}'),
-              Text('Calificación promedio: ${widget.experience.averageRating?.toStringAsFixed(1) ?? 'N/A'}'),
+              Text(
+                  'Precio: \$${widget.experience.price ?? 'N/A'}'),
+              Text(
+                  'Correo de contacto: ${widget.experience.contactmail ?? 'Sin Correo de contacto'}'),
+              Text(
+                  'Número de contacto: ${widget.experience.contactnumber ?? 'Sin número de contacto'}'),
+              Text(
+                  'Puntuación actual: ${_currentRating?.toStringAsFixed(1) ?? 'N/A'}'),
+              Text(
+                  'Calificación promedio: ${widget.experience.averageRating?.toStringAsFixed(1) ?? 'N/A'}'),
+              Text(
+                  'Servicios:'),
+              Column(
+                children: widget.experience.services!.map((service) {
+                  return Text('${service.icon} ${service.label}');
+                }).toList(),
+              ),
               ElevatedButton(
                 onPressed: () => _showReviewsDialog(),
                 child: const Text('Ver valoraciones'),

@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import 'package:get/get.dart';
 
 class PerfilPage extends StatelessWidget {
+  const PerfilPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     // Obtener el PerfilProvider desde el contexto

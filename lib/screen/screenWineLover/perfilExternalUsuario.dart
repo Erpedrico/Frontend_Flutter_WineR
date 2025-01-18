@@ -7,6 +7,8 @@ import 'package:get/get.dart';
 
 class PerfilExternalPage extends StatelessWidget {
   final UserService _userService = UserService();
+
+  PerfilExternalPage({super.key});
   @override
   Widget build(BuildContext context) {
     // Obtener el PerfilProvider desde el contexto

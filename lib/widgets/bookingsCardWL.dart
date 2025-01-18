@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/providers/perfilProvider.dart';
+import 'package:flutter_application_1/services/userService.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:latlong2/latlong.dart';
@@ -14,10 +15,10 @@ class BookingsCardWL extends StatefulWidget {
   final ValueChanged<double> onRatingUpdate;
 
   const BookingsCardWL({
-    Key? key,
+    super.key,
     required this.experience,
     required this.onRatingUpdate,
-  }) : super(key: key);
+  });
 
   @override
   _BookingsCardStateWL createState() => _BookingsCardStateWL();
@@ -28,11 +29,14 @@ class _BookingsCardStateWL extends State<BookingsCardWL> {
   LatLngBounds? _bounds;
   double? _currentRating;
   List<Map<String, dynamic>> _reviews = [];
+  String? _ownerName;
+  bool _showFullInfo = false;
 
   @override
   void initState() {
     super.initState();
     _fetchCoordinates();
+    _fetchOwnerName();
     _currentRating = widget.experience.rating ?? 0.0;
   }
 
@@ -75,6 +79,15 @@ class _BookingsCardStateWL extends State<BookingsCardWL> {
       print('Error al geocodificar dirección: $e');
       return null;
     }
+  }
+
+  Future<void> _fetchOwnerName() async {
+    final userService = UserService();
+    final id = widget.experience.owner;
+    final ownerName = await userService.getUserNameById(id);
+    setState(() {
+      _ownerName = ownerName;
+    });
   }
 
   Future<void> _fetchReviews() async {
@@ -225,7 +238,6 @@ class _BookingsCardStateWL extends State<BookingsCardWL> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -242,15 +254,7 @@ class _BookingsCardStateWL extends State<BookingsCardWL> {
             const SizedBox(height: 8),
             Text(
                 'Descripción: ${widget.experience.description ?? 'Sin descripción'}'),
-            Text(
-                'Propietario: ${widget.experience.owner ?? 'Sin propietario'}'),
-            Text('Precio: \$${widget.experience.price ?? 'N/A'}'),
-            Text(
-                'Puntuación actual: ${_currentRating?.toStringAsFixed(1) ?? 'N/A'}'),
-            Text(
-                'Calificación promedio: ${widget.experience.averageRating?.toStringAsFixed(1) ?? 'N/A'}'), // Muestra la calificación promedio
-            Text(
-                'Localización: ${widget.experience.location ?? 'Sin localización'}'),
+            Text('Propietario: ${_ownerName ?? 'Sin propietario'}'),
             const SizedBox(height: 16),
             Container(
               height: 200,
@@ -281,7 +285,7 @@ class _BookingsCardStateWL extends State<BookingsCardWL> {
                             point: _coordinates!,
                             builder: (ctx) => const Icon(
                               Icons.location_on,
-                              color: Colors.red,
+                              color: Color(0xFFF44336),
                               size: 30.0,
                             ),
                           ),
@@ -292,15 +296,39 @@ class _BookingsCardStateWL extends State<BookingsCardWL> {
               ),
             ),
             const SizedBox(height: 16),
-
+            if (_showFullInfo) ...[
+              Text('Precio: \$${widget.experience.price ?? 'N/A'}'),
+              Text(
+                  'Correo de contacto: ${widget.experience.contactmail ?? 'Sin Correo de contacto'}'),
+              Text(
+                  'Número de contacto: ${widget.experience.contactnumber ?? 'Sin número de contacto'}'),
+              Text(
+                  'Puntuación actual: ${_currentRating?.toStringAsFixed(1) ?? 'N/A'}'),
+              Text(
+                  'Calificación promedio: ${widget.experience.averageRating?.toStringAsFixed(1) ?? 'N/A'}'),
+              Text('Servicios:'),
+              Column(
+                children: widget.experience.services!.map((service) {
+                  return Text('${service.icon} ${service.label}');
+                }).toList(),
+              ),
+            ],
+            ElevatedButton(
+                onPressed: () => _showReviewsDialog(),
+                child: const Text('Ver valoraciones'),
+            ),
+            const SizedBox(height: 8),
             ElevatedButton(
               onPressed: _showRatingDialog,
               child: const Text('Valorar experiencia'),
             ),
-
             ElevatedButton(
-              onPressed: _showReviewsDialog,
-              child: const Text('Ver valoraciones'),
+              onPressed: () {
+                setState(() {
+                  _showFullInfo = !_showFullInfo;
+                });
+              },
+              child: Text(_showFullInfo ? 'Ver menos' : 'Ver más'),
             ),
           ],
         ),

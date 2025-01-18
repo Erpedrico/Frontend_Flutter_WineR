@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 class UserService {
   //final String baseUrl = "http://147.83.7.158:5000";
   final String baseUrl = "http://127.0.0.1:3000/api/user"; // URL de tu backend Web
-  //final String baseUrl = "http://10.0.2.2:3000"; // URL de tu backend Android
+  //final String baseUrl = "http://10.0.2.2:3000/api/user"; // URL de tu backend Android
   final Dio dio = Dio(); // Usa el prefijo 'Dio' para referenciar la clase Dio
   var statusCode;
   var data;
@@ -25,7 +25,7 @@ class UserService {
     print('request');
     print(newUser.toJson());
     // Utilizar Dio para enviar la solicitud POST a http://127.0.0.1:3000/user
-    Response response = await dio.post('$baseUrl', data: newUser.toJson());
+    Response response = await dio.post(baseUrl, data: newUser.toJson());
     print('response');
     token = response
         .headers['auth-token']?.first; // Accede al primer valor del header
@@ -76,7 +76,7 @@ class UserService {
   Future<List<UserModel>> getUsers() async {
     print('getUsers');
     try {
-      var res = await dio.get('$baseUrl');
+      var res = await dio.get(baseUrl);
       List<dynamic> responseData =
           res.data; // Obtener los datos de la respuesta
 
@@ -88,7 +88,7 @@ class UserService {
     } catch (e) {
       // Manejar cualquier error que pueda ocurrir durante la solicitud
       print('Error fetching data: $e');
-      throw e; // Relanzar el error para que el llamador pueda manejarlo
+      rethrow; // Relanzar el error para que el llamador pueda manejarlo
     }
   }
 
@@ -112,7 +112,7 @@ class UserService {
       }
     } catch (e) {
       print('Error fetching data: $e');
-      throw e;
+      rethrow;
     }
   }
 

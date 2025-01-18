@@ -11,6 +11,8 @@ import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
 class MapPage extends StatefulWidget {
+  const MapPage({super.key});
+
   @override
   _MapPageState createState() => _MapPageState();
 }
@@ -187,8 +189,7 @@ class _MapPageState extends State<MapPage> {
 class ExperienceDetailPage extends StatelessWidget {
   final ExperienceModel experience;
 
-  const ExperienceDetailPage({Key? key, required this.experience})
-      : super(key: key);
+  const ExperienceDetailPage({super.key, required this.experience});
 
   @override
   Widget build(BuildContext context) {

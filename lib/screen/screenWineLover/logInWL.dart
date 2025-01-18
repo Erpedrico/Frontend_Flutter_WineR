@@ -6,6 +6,8 @@ import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 class LogInPage extends StatefulWidget {
+  const LogInPage({super.key});
+
   @override
   _LogInPageState createState() => _LogInPageState();
 }
@@ -105,26 +107,26 @@ class _LogInPageState extends State<LogInPage> {
                 ? CircularProgressIndicator()
                 : ElevatedButton(
                     onPressed: logIn,
-                    child: Text('Iniciar Sesión',
-                    style: TextStyle(color: Colors.white), // Texto blanco
-                ),
                 style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFFB04D47), // Fondo rosa-rojo (puedes cambiar el valor según tu preferencia)
                 shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20), // Bordes redondeados
                 ),
+                ),
+                    child: Text('Iniciar Sesión',
+                    style: TextStyle(color: Colors.white), // Texto blanco
                 ),
                 ),
                 ElevatedButton(
                   onPressed: toMainPage,
-                  child: Text('Volver a la pagina principal',
-                  style: TextStyle(color: Colors.white), // Texto blanco
-                ),
                 style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFFB04D47), // Fondo rosa-rojo (puedes cambiar el valor según tu preferencia)
                 shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20), // Bordes redondeados
                 ),
+                ),
+                  child: Text('Volver a la pagina principal',
+                  style: TextStyle(color: Colors.white), // Texto blanco
                 ),
               ),
           ],

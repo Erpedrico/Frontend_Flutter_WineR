@@ -6,6 +6,8 @@ import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 class LogInPageWM extends StatefulWidget {
+  const LogInPageWM({super.key});
+
   @override
   _LogInPageStateWM createState() => _LogInPageStateWM();
 }
@@ -104,27 +106,27 @@ class _LogInPageStateWM extends State<LogInPageWM> {
                 ? CircularProgressIndicator()
                 : ElevatedButton(
                 onPressed: logIn,
+                style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFFB04D47), // Fondo rosa-rojo (puedes cambiar el valor según tu preferencia)
+                shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20), // Bordes redondeados
+                ),
+                ),
                 child: Text(
                 'Iniciar Sesión',
                 style: TextStyle(color: Colors.white), // Texto blanco
                 ),
-                style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFFB04D47), // Fondo rosa-rojo (puedes cambiar el valor según tu preferencia)
-                shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20), // Bordes redondeados
-                ),
-                ),
                 ),
                 ElevatedButton(
                   onPressed: toMainPage,
-                  child: Text('Volver a la pagina principal',
-                  style: TextStyle(color: Colors.white), // Texto blanco
-                ),
                 style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFFB04D47), // Fondo rosa-rojo (puedes cambiar el valor según tu preferencia)
                 shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20), // Bordes redondeados
                 ),
+                ),
+                  child: Text('Volver a la pagina principal',
+                  style: TextStyle(color: Colors.white), // Texto blanco
                 ),
                 ),
           ],

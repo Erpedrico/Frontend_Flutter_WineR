@@ -9,7 +9,7 @@ import 'package:provider/provider.dart'; // Asegúrate de tener tu UserService i
 class BookingsScreen extends StatefulWidget {
   final String userToken;
 
-  BookingsScreen({required this.userToken});
+  const BookingsScreen({super.key, required this.userToken});
 
   @override
   _BookingsScreenState createState() => _BookingsScreenState();
