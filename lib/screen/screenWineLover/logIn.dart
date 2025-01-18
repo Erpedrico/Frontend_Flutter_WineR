@@ -79,11 +79,47 @@ class _LogInPageState extends State<LogInPage> {
   void logInWithGoogle() async {
     final credenciales = await AuthService().signInWithGoogle();
 
+    final String? idToken = await credenciales?.user?.getIdToken();
     debugPrint(credenciales?.user?.displayName);
     debugPrint(credenciales?.user?.photoURL);
     debugPrint(credenciales?.user?.email);
+    debugPrint(credenciales?.user?.uid);
+    debugPrint('Token de Google (idToken): $idToken');
 
-    Get.offNamed('/main');
+    final logIn = (
+      username: credenciales?.user?.displayName,
+      password: credenciales?.user?.uid,
+    );
+
+    try {
+      // Llamada al servicio para iniciar sesión
+      final response = await userService.logIn(logIn);
+
+      if (response is UserModel) {
+        // Si el login fue exitoso, actualizamos el perfil y redirigimos
+        // Usamos el Provider para acceder a la instancia de PerfilProvider y actualizar el usuario
+        final perfilProvider = Provider.of<PerfilProvider>(context, listen: false);
+        perfilProvider.updateUser(response); // Actualizamos el perfil del usuario
+        if (response.tipo=='wineLover'){
+          Get.offNamed('/main');
+        } else{
+          Get.offNamed('/mainWM');
+        } 
+      } else {
+        // Si el login no fue exitoso, mostramos un error
+        setState(() {
+          errorMessage = 'Usuario o contraseña incorrectos';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = 'Error: No se pudo conectar con la API';
+      });
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   @override

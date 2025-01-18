@@ -5,12 +5,12 @@ import '../../models/userModel.dart';
 import '../../providers/perfilProvider.dart'; 
 import 'package:provider/provider.dart'; 
 
-class chatPage extends StatefulWidget {
+class chatPage2 extends StatefulWidget {
   @override
   _chatPageState createState() => _chatPageState();
 }
 
-class _chatPageState extends State<chatPage> {
+class _chatPageState extends State<chatPage2> {
   late IO.Socket socket;
   final TextEditingController _messageController = TextEditingController();
   final List<String> _messages = []; // Lista para almacenar los mensajes
@@ -36,11 +36,8 @@ class _chatPageState extends State<chatPage> {
     });
 
     UserModel? currentUser = Provider.of<PerfilProvider>(context, listen: false).getUser();
-    String? objectiveUser = Provider.of<PerfilProvider>(context, listen: false).getUsernameChat();
-    List<String?> nombres = [currentUser?.username, objectiveUser];
-    nombres.sort();
-    String roomName = "${nombres[0]}_${nombres[1]}";
-    socket.emit('joinRoom',roomName);
+    String? room = Provider.of<PerfilProvider>(context, listen: false).getRoomChat();
+    socket.emit('joinRoom',room);
 
     socket.on('previousMessages', (data) {
       if (!mounted) return;

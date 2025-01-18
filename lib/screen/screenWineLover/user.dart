@@ -163,6 +163,16 @@ Widget build(BuildContext context) {
   return Scaffold(
     appBar: AppBar(
       title: Text('Amigos'),
+      actions: [
+        // Botón en la esquina superior derecha
+        IconButton(
+          icon: Icon(Icons.group), // Ícono representando "todos los chats"
+          tooltip: 'Todos los chats',
+          onPressed: () {
+            Get.offNamed('/roomPage',);
+          },
+        ),
+      ],
     ),
     body: Column(
       children: [
@@ -205,50 +215,50 @@ Widget build(BuildContext context) {
           ),
         ),
         // Cuerpo principal
-      Expanded(
-        flex: 1,
-        child: _isLoading
-            ? Center(child: CircularProgressIndicator()) // Mostrar cargando
-            : _solicitudesList.isEmpty
-                ? Center(child: Text('No hay solicitudes de amistad')) // Si no hay solicitudes
-                : SingleChildScrollView(
-                    child: ExpansionTile(
-                      title: Text(
-                        'Mostrar solicitudes de amistad (${_solicitudesList.length})',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                      ),
-                      initiallyExpanded: false, // Empieza cerrado
-                      children: _solicitudesList.map((user) {
-                        final username = user.username; // Obtener el nombre de usuario
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8.0),
-                              color: Colors.grey[200], // Fondo gris claro
-                            ),
-                            child: ListTile(
-                              title: Text(username ?? 'Usuario desconocido'), // Muestra el nombre de usuario
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: Icon(Icons.check, color: Colors.green),
-                                    onPressed: () => addFriend(username), // Llama a `addFriend`
-                                  ),
-                                  IconButton(
-                                    icon: Icon(Icons.close, color: Colors.red),
-                                    onPressed: () => noaddFriend(username), // Llama a `noaddFriend`
-                                  ),
-                                ],
+        Expanded(
+          flex: 1,
+          child: _isLoading
+              ? Center(child: CircularProgressIndicator()) // Mostrar cargando
+              : _solicitudesList.isEmpty
+                  ? Center(child: Text('No hay solicitudes de amistad')) // Si no hay solicitudes
+                  : SingleChildScrollView(
+                      child: ExpansionTile(
+                        title: Text(
+                          'Mostrar solicitudes de amistad (${_solicitudesList.length})',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                        ),
+                        initiallyExpanded: false, // Empieza cerrado
+                        children: _solicitudesList.map((user) {
+                          final username = user.username; // Obtener el nombre de usuario
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8.0),
+                                color: Colors.grey[200], // Fondo gris claro
+                              ),
+                              child: ListTile(
+                                title: Text(username ?? 'Usuario desconocido'), // Muestra el nombre de usuario
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      icon: Icon(Icons.check, color: Colors.green),
+                                      onPressed: () => addFriend(username), // Llama a `addFriend`
+                                    ),
+                                    IconButton(
+                                      icon: Icon(Icons.close, color: Colors.red),
+                                      onPressed: () => noaddFriend(username), // Llama a `noaddFriend`
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        );
-                      }).toList(),
+                          );
+                        }).toList(),
+                      ),
                     ),
-                  ),
-      ),
+        ),
         Expanded(
           flex: 2,
           child: _isLoading

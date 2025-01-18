@@ -111,11 +111,12 @@ class UserService {
 }
 
 
-  Future<int> EditUser(UserModel newUser, String id) async {
+  Future<int> EditUser(UserModel newUser, String? id, String? token) async {
     print('createUser');
     print('try');
     //Aquí llamamos a la función request
     print('request');
+    dio.options.headers['auth-token'] = token;
 
     // Utilizar Dio para enviar la solicitud POST a http://127.0.0.1:3000/user
     Response response =
@@ -130,10 +131,10 @@ class UserService {
     statusCode = response.statusCode;
     print('Status code: $statusCode');
 
-    if (statusCode == 201) {
+    if (statusCode == 200) {
       // Si el usuario se crea correctamente, retornamos el código 201
-      print('201');
-      return 201;
+      print('200');
+      return 200;
     } else if (statusCode == 400) {
       // Si hay campos faltantes, retornamos el código 400
       print('400');
@@ -201,6 +202,65 @@ Future<dynamic> logIn(logIn) async {
     // Realiza la solicitud POST
     Response response =
         await dio.post('$baseUrl/api/user/logIn', data: logInToJson(logIn));
+
+    // Extrae el token del encabezado
+      token = response.headers['auth-token']?.first; // Accede al primer valor del header
+      if (token != null) {
+        print('Token: $token');
+      } else {
+        print('No token found');
+      }
+
+    // En response guardamos lo que recibimos como respuesta
+    // Printeamos los datos recibidos
+    data = response.data['user'];
+    print('Data: $data');
+
+    
+    // Printeamos el status code recibido por el backend
+    statusCode = response.statusCode;
+    print('Status code: $statusCode');
+
+    // Verifica si el estado es 200 (éxito)
+    if (statusCode == 200) {
+      print('200');
+
+      // Convierte la respuesta en un modelo PerfilModel
+      UserModel perfil = UserModel.fromJson(data);
+      perfil.setToken(token);
+      print('Perfil: ${perfil.username}, ${perfil.mail}, ${perfil.token}');
+      perfilUsuario = perfil;
+
+      return perfilUsuario;
+    } else if (statusCode == 400) {
+      print('400');
+      return 400;
+    } else if (statusCode == 500) {
+      print('500');
+      return 500;
+    } else {
+      print('-1');
+      return -1;
+    }
+  } catch (e) {
+    // Manejo de errores en caso de excepción
+    print('Error: $e');
+    return -1;
+  }
+}
+
+Future<dynamic> logInWithGoogleWineLover(googleToken) async {
+  print('LogIn');
+  print('try');
+
+  try {
+    // Realiza la solicitud POST al endpoint de Google Login
+    Response response = await dio.post(
+      '$baseUrl/api/user/reactGoogleLoginLover', // Cambia la URL al endpoint correcto
+      data: {
+        'token': googleToken, // Token recibido de Google
+      },
+    );
 
     // Extrae el token del encabezado
       token = response.headers['auth-token']?.first; // Accede al primer valor del header
