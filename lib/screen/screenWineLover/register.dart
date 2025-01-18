@@ -54,7 +54,7 @@ class _RegisterPageState extends State<RegisterPage> {
         // Usamos el Provider para acceder a la instancia de PerfilProvider y actualizar el usuario
         final perfilProvider = Provider.of<PerfilProvider>(context, listen: false);
         perfilProvider.updateUser(response); // Actualizamos el perfil del usuario
-        Get.offNamed('/main'); // Redirigimos a la página principal
+        Get.offNamed('/quiz'); // Redirigimos a la página principal
       } else {
         // Si el login no fue exitoso, mostramos un error
         setState(() {
@@ -98,7 +98,7 @@ class _RegisterPageState extends State<RegisterPage> {
         // Usamos el Provider para acceder a la instancia de PerfilProvider y actualizar el usuario
         final perfilProvider = Provider.of<PerfilProvider>(context, listen: false);
         perfilProvider.updateUser(response); // Actualizamos el perfil del usuario
-        Get.offNamed('/main'); // Redirigimos a la página principal
+        Get.offNamed('/quiz'); // Redirigimos a la página principal
       } else {
         // Si el login no fue exitoso, mostramos un error
         setState(() {

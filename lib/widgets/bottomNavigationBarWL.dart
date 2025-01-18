@@ -25,11 +25,10 @@ class _BottomNavScaffoldState extends State<BottomNavScaffold> {
   // Lista de widgets para las diferentes pantallas
   final List<Widget> _pages = [   
     UserPage(),          
-    ExperienciesPageWL(),
-    HomePage(),
     MapPage(),
-    PerfilPage(),  
+    ExperienciesPageWL(),  
     BookingsScreen(userToken: 'your-user-token-here'), // Añadir la pantalla de reservas, asegúrate de pasar el token del usuario       
+    PerfilPage(),
   ];
 
   // Método para manejar el cambio de pestaña
@@ -98,24 +97,20 @@ class _BottomNavScaffoldState extends State<BottomNavScaffold> {
             label: 'Amigos',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.explore),
-            label: 'Experiencias',
+            icon: Icon(Icons.map),
+            label: 'Mapa',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.wine_bar),
             label: 'Home',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.map),
-            label: 'Mapa',
+          BottomNavigationBarItem( // Añadir nuevo botón para reservas
+            icon: Icon(Icons.book),
+            label: 'Reservas',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Perfil',
-          ),
-          BottomNavigationBarItem( // Añadir nuevo botón para reservas
-            icon: Icon(Icons.book),
-            label: 'Reservas',
           ),
         ],
       ),

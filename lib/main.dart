@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/providers/perfilProvider.dart';
 import 'package:flutter_application_1/conciencia_digital/timerService.dart';
+import 'package:flutter_application_1/screen/quiz.dart';
 import 'package:flutter_application_1/screen/settings.dart';
 import 'package:flutter_application_1/screen/support.dart';
 import 'package:flutter_application_1/screen/updateProfile.dart';
+import 'package:flutter_application_1/providers/settings_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:get/get.dart';
 import 'package:flutter_application_1/screen/initPage.dart';
@@ -31,6 +33,7 @@ Future<void> main() async {
       providers: [
         ChangeNotifierProvider(create: (context) => PerfilProvider()),
         ChangeNotifierProvider(create: (context) => TimerService()),
+        ChangeNotifierProvider(create: (context) => SettingsProvider()), // Agregar ThemeProvider
       ],
       child: MyApp(),
     ),
@@ -42,88 +45,39 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      initialRoute: '/',
-      getPages: [
-        GetPage(
-          name: '/',
-          page: () => InitPage(),
-        ),
-        // Ruta de inicio de sesión
-        GetPage(
-          name: '/login',
-          page: () => LogInPage(),
-        ),
-        // Ruta de registro
-        GetPage(
-          name: '/register',
-          page: () => RegisterPage(),
-        ),
-        GetPage(
-          name: '/lyr',
-          page: () => TabBarScaffold(),
-        ),
-        GetPage(
-          name: '/lyrWM',
-          page: () => TabBarScaffoldWM(),
-        ),
-        // Ruta para TabBarScaffold
-        GetPage(
-          name: '/main',
-          page: () => BottomNavScaffold(),
-        ),
-         GetPage(
-          name: '/loginWM',
-          page: () => LogInPageWM(),
-        ),
-        // Ruta de registro
-        GetPage(
-          name: '/registerWM',
-          page: () => RegisterPageWM(),
-        ),
-        // Ruta para TabBarScaffold
-        GetPage(
-          name: '/mainWM',
-          page: () => BottomNavScaffoldWM(),
-        ),
-        //Ruta para perfil de user
-        GetPage(
-          name: '/perfilExternalUsuario',
-          page: () => PerfilExternalPage(),
-        ),
-        // Ruta para mapa
-        GetPage(
-          name: '/mapa',
-          page: () => MapPage(),
-        ),
-        GetPage(
-          name: '/chat',
-          page: () => chatPage(),
-        ),
-        GetPage(
-          name: '/chatPage',
-          page: () => chatPage2(),
-        ),
-        GetPage(
-          name: '/roomPage',
-          page: () => RoomPage(),
-        ),
-        GetPage(
-          name: '/settings',
-          page: () => SettingsPage(),
-        ),
-        GetPage(
-          name: '/support',
-          page: () => SupportPage(),
-        ),
-        GetPage(
-          name: '/updateProfile',
-          page: () => UpdateProfilePage(),
-        ),
-      ],
+    return Consumer<SettingsProvider>(
+      builder: (context, SettingsProvider, child) {
+        return GetMaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            scaffoldBackgroundColor: SettingsProvider.backgroundColor,
+            textTheme: TextTheme(
+              bodyMedium: TextStyle(fontSize: SettingsProvider.fontSize),
+            ),
+          ),
+          initialRoute: '/',
+          getPages: [
+            GetPage(name: '/', page: () => InitPage()),
+            GetPage(name: '/login', page: () => LogInPage()),
+            GetPage(name: '/register', page: () => RegisterPage()),
+            GetPage(name: '/lyr', page: () => TabBarScaffold()),
+            GetPage(name: '/lyrWM', page: () => TabBarScaffoldWM()),
+            GetPage(name: '/main', page: () => BottomNavScaffold()),
+            GetPage(name: '/loginWM', page: () => LogInPageWM()),
+            GetPage(name: '/registerWM', page: () => RegisterPageWM()),
+            GetPage(name: '/mainWM', page: () => BottomNavScaffoldWM()),
+            GetPage(name: '/perfilExternalUsuario', page: () => PerfilExternalPage()),
+            GetPage(name: '/mapa', page: () => MapPage()),
+            GetPage(name: '/chat', page: () => chatPage()),
+            GetPage(name: '/chatPage', page: () => chatPage2()),
+            GetPage(name: '/roomPage', page: () => RoomPage()),
+            GetPage(name: '/settings', page: () => SettingsPage()),
+            GetPage(name: '/support', page: () => SupportPage()),
+            GetPage(name: '/updateProfile', page: () => UpdateProfilePage()),
+            GetPage(name: '/quiz', page: () => QuizPage()),
+          ],
+        );
+      },
     );
   }
 }
-
-

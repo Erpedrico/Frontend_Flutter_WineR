@@ -50,7 +50,7 @@ class _chatPageState extends State<chatPage> {
       for (var item in data) {
         String username = item['username']?.toString() ?? 'Usuario desconocido';
         String content = item['content']?.toString() ?? 'Mensaje vacío';
-        String premessage = username + content;
+        String premessage = username + ": " + content;
         _messages.add(premessage);
       }
       });
@@ -59,7 +59,10 @@ class _chatPageState extends State<chatPage> {
     socket.on('message-receive', (data) {
       if (!mounted) return;
         setState(() {
-        _messages.add(data['content'].toString());
+          String username = data['username']?.toString() ?? 'Usuario desconocido';
+        String content = data['content']?.toString() ?? 'Mensaje vacío';
+        String premessage = username + ": " + content;
+        _messages.add(premessage);
       // Agregar el mensaje recibido a la lista
       });
     });
