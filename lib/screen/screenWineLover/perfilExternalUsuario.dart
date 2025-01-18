@@ -8,10 +8,6 @@ import 'package:get/get.dart';
 class PerfilExternalPage extends StatelessWidget {
   final UserService _userService = UserService();
 
-<<<<<<< HEAD
-  PerfilExternalPage({super.key});
-=======
->>>>>>> signInWithGoogle
   @override
   Widget build(BuildContext context) {
     // Obtener el PerfilProvider desde el contexto
@@ -143,4 +139,5 @@ class PerfilExternalPage extends StatelessWidget {
     );
   }
 }
+
 
