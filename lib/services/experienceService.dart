@@ -15,7 +15,7 @@ class ExperienceService {
     try {
       // Enviar solicitud POST para crear una nueva experiencia
       Response response = await dio.post(
-        baseUrl,
+        '$baseUrl/flutter',
         data: newExperience.toJson(),
       );
 
