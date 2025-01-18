@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/models/userModel.dart';
 import 'package:flutter_application_1/providers/perfilProvider.dart';
 import 'package:flutter_application_1/services/userService.dart';
+import 'package:flutter_application_1/services/auth_services.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
@@ -67,6 +68,45 @@ class _RegisterPageStateWM extends State<RegisterPageWM> {
   void toMainPage() async {
     Get.offNamed('/');
   }
+
+  void logInWithGoogle() async {
+    final credenciales = await AuthService().signInWithGoogle();
+
+    final String? idToken = await credenciales?.user?.getIdToken();
+    debugPrint(credenciales?.user?.displayName);
+    debugPrint(credenciales?.user?.photoURL);
+    debugPrint(credenciales?.user?.email);
+    debugPrint(credenciales?.user?.uid);
+    debugPrint('Token de Google (idToken): $idToken');
+
+    final user = UserModel(
+      username: credenciales?.user?.displayName ?? '', // Usar un valor por defecto como vacío ('')
+      name: credenciales?.user?.displayName ?? '',
+      mail: credenciales?.user?.email ?? '',
+      password: credenciales?.user?.uid ?? '', // O cualquier valor seguro
+      comment: credenciales?.user?.email ?? '',
+      tipo: 'wineMaker',
+      amigos: [],
+      solicitudes: [],
+    );
+    print(user.username); 
+
+      // Llamar al servicio
+      final response = await userService.createUser(user);
+      print('Vamos a ver');
+      if (response is UserModel) {
+        print('Fue exito');
+        // Si el login fue exitoso, actualizamos el perfil y redirigimos
+        // Usamos el Provider para acceder a la instancia de PerfilProvider y actualizar el usuario
+        final perfilProvider = Provider.of<PerfilProvider>(context, listen: false);
+        perfilProvider.updateUser(response); // Actualizamos el perfil del usuario
+        Get.offNamed('/main'); // Redirigimos a la página principal
+      } else {
+        // Si el login no fue exitoso, mostramos un error
+        setState(() {
+        });
+      }
+    }
 
   @override
   Widget build(BuildContext context) {
@@ -152,6 +192,18 @@ class _RegisterPageStateWM extends State<RegisterPageWM> {
                 ),
                 child: Text('Volver a la pagina principal',
                 style: TextStyle(color: Colors.white), // Texto blanco
+                ),
+              ),
+              ElevatedButton(
+                  onPressed: logInWithGoogle,
+                  child: Text('Registrarse con google',
+                  style: TextStyle(color: Colors.white), // Texto blanco
+                ),
+                style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFFB04D47), // Fondo rosa-rojo (puedes cambiar el valor según tu preferencia)
+                shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20), // Bordes redondeados
+                ),
                 ),
               ),
             ],

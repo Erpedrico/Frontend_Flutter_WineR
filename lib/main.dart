@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/providers/perfilProvider.dart';
 import 'package:flutter_application_1/conciencia_digital/timerService.dart';
+import 'package:flutter_application_1/screen/settings.dart';
+import 'package:flutter_application_1/screen/support.dart';
+import 'package:flutter_application_1/screen/updateProfile.dart';
 import 'package:provider/provider.dart';
 import 'package:get/get.dart';
 import 'package:flutter_application_1/screen/initPage.dart';
 import 'package:flutter_application_1/screen/screenWineLover/chat.dart';
+import 'package:flutter_application_1/screen/screenWineLover/allChat.dart';
+import 'package:flutter_application_1/screen/screenWineLover/allRooms.dart';
 import 'package:flutter_application_1/screen/screenWineLover/map.dart';
 import 'package:flutter_application_1/screen/screenWineLover/perfilExternalUsuario.dart';
 import 'package:flutter_application_1/screen/screenWineLover/logInWL.dart';
@@ -15,8 +20,12 @@ import 'package:flutter_application_1/screen/screenWineMaker/logInWM.dart';
 import 'package:flutter_application_1/screen/screenWineMaker/registerWM.dart';
 import 'package:flutter_application_1/widgets/bottomNavigationBarWM.dart';
 import 'package:flutter_application_1/widgets/tabBarScaffoldWM.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(
     MultiProvider(
       providers: [
@@ -91,6 +100,26 @@ class MyApp extends StatelessWidget {
         GetPage(
           name: '/chat',
           page: () => chatPage(),
+        ),
+        GetPage(
+          name: '/chatPage',
+          page: () => chatPage2(),
+        ),
+        GetPage(
+          name: '/roomPage',
+          page: () => RoomPage(),
+        ),
+        GetPage(
+          name: '/settings',
+          page: () => SettingsPage(),
+        ),
+        GetPage(
+          name: '/support',
+          page: () => SupportPage(),
+        ),
+        GetPage(
+          name: '/updateProfile',
+          page: () => UpdateProfilePage(),
         ),
       ],
     );

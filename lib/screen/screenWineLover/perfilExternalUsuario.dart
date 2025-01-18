@@ -8,13 +8,16 @@ import 'package:get/get.dart';
 class PerfilExternalPage extends StatelessWidget {
   final UserService _userService = UserService();
 
+<<<<<<< HEAD
   PerfilExternalPage({super.key});
+=======
+>>>>>>> signInWithGoogle
   @override
   Widget build(BuildContext context) {
     // Obtener el PerfilProvider desde el contexto
     final perfilProvider = Provider.of<PerfilProvider>(context, listen: false);
 
-    // Acceder al perfil actual almacenado en el PerfilProvider
+    // Acceder al perfil externo almacenado en el PerfilProvider
     UserModel? perfil = perfilProvider.perfilExternalUsuario;
     UserModel? currentUser = perfilProvider.perfilUsuario;
 
@@ -26,71 +29,118 @@ class PerfilExternalPage extends StatelessWidget {
       );
     }
 
-    // Función para cerrar sesión
+    // Función para volver
     void volver() {
       perfilProvider.deleteExternalUser();
       Get.offNamed('/main');
     }
 
-    void addSolicitud() async{
+    // Función para enviar solicitud de amistad
+    void addSolicitud() async {
       int response = await _userService.addSolicitud(currentUser?.username, perfil.username);
-      // ignore: unrelated_type_equality_checks
-      if (response==200){
+      if (response == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Solicitud de amistad enviada"),
-          duration: Duration(seconds: 2), // El tiempo que aparece el mensaje
-        ),
-      );
-      Get.offNamed('/main');
+          SnackBar(
+            content: Text("Solicitud de amistad enviada"),
+            duration: Duration(seconds: 2), // El tiempo que aparece el mensaje
+          ),
+        );
+        Get.offNamed('/main');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Error al enviar solicitud"),
-          duration: Duration(seconds: 2), // El tiempo que aparece el mensaje
-        ),
-      );
+          SnackBar(
+            content: Text("Error al enviar solicitud"),
+            duration: Duration(seconds: 2),
+          ),
+        );
       }
     }
 
-    // Si existe el perfil, mostramos los datos
+    // Verificar si el usuario externo ya está en la lista de amigos
+    bool isFriend = currentUser?.amigos?.contains(perfil.username) ?? false;
+
+    // Si existe el perfil externo, mostramos los datos
     return Scaffold(
       appBar: AppBar(
         title: Text("Perfil de ${perfil.username}"),
+        backgroundColor: Colors.redAccent,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Nombre: ${perfil.name}",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      body: Container(
+        color: Colors.red[50],
+        child: Center(
+          child: Card(
+            elevation: 4,
+            margin: const EdgeInsets.all(16.0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16.0),
             ),
-            SizedBox(height: 10),
-            Text("Correo: ${perfil.mail}", style: TextStyle(fontSize: 16)),
-            SizedBox(height: 10),
-            Text("Tipo: ${perfil.tipo}", style: TextStyle(fontSize: 16)),
-            SizedBox(height: 10),
-            Text("Comentario: ${perfil.comment}", style: TextStyle(fontSize: 16)),
-            SizedBox(height: 10),
-            Text("ID: ${perfil.id}", style: TextStyle(fontSize: 16)),
-            SizedBox(height: 10),
-            Text("Token: ${perfil.token}", style: TextStyle(fontSize: 16)),
-            SizedBox(height: 10),
-            Text("Nombre de Usuario: ${perfil.username}", style: TextStyle(fontSize: 16)),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: volver,
-              child: Text("Volver"),
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircleAvatar(
+                    radius: 50,
+                    backgroundImage: //perfil.photoUrl != null
+                        //? NetworkImage(perfil.photoUrl!)
+                        AssetImage('assets/images/default_profile.png') as ImageProvider,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    perfil.name ?? "Nombre no disponible",
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.redAccent,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    "Usuario: ${perfil.username ?? "N/A"}",
+                    style: TextStyle(fontSize: 16, color: Colors.black54),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    perfil.mail ?? "Correo no disponible",
+                    style: TextStyle(fontSize: 14, color: Colors.black45),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    perfil.comment ?? "Sin comentarios",
+                    style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: volver,
+                        icon: Icon(Icons.arrow_back),
+                        label: Text("Volver"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent,
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
+                      if (!isFriend)
+                        ElevatedButton.icon(
+                          onPressed: addSolicitud,
+                          icon: Icon(Icons.person_add),
+                          label: Text("Enviar solicitud"),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-            ElevatedButton(
-              onPressed: addSolicitud, 
-              child: Text("Enviar solicitud de amistad")
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 }
+
