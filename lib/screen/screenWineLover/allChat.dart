@@ -25,10 +25,15 @@ class _chatPageState extends State<chatPage2> {
       'autoConnect': false,
     });*/
 
-    socket = IO.io('http://10.0.2.2:3000', <String, dynamic>{
+    socket = IO.io('http://apiwiner.duckdns.org:5000', <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': false,
     });
+
+    /*socket = IO.io('http://10.0.2.2:3000', <String, dynamic>{
+      'transports': ['websocket'],
+      'autoConnect': false,
+    });*/
 
     // Manejo de eventos
     socket.on('connect', (_) {

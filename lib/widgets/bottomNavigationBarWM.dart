@@ -5,6 +5,7 @@ import 'package:flutter_application_1/screen/screenWineMaker/homeWM.dart';
 import 'package:flutter_application_1/screen/screenWineMaker/perfilPersonalWM.dart';
 import 'package:flutter_application_1/screen/screenWineMaker/userWM.dart';
 import 'package:flutter_application_1/screen/screenWineMaker/experienciesWM.dart';
+import 'package:flutter_application_1/screen/screenWineMaker/winesWM.dart';
 
 
 class BottomNavScaffoldWM extends StatefulWidget {
@@ -20,8 +21,9 @@ class _BottomNavScaffoldStateWM extends State<BottomNavScaffoldWM> {
 
   // Lista de widgets para las diferentes pantallas
   final List<Widget> _pages = [   
-    HomePageWM(),
+    WineWMPage(),
     UserPage(),        
+    ExperienciesPageWM(),
     ExperienciasPropiasPage(),
     CalendarioPageWM(),
     PerfilPage(),           
@@ -50,11 +52,15 @@ class _BottomNavScaffoldStateWM extends State<BottomNavScaffoldWM> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.wine_bar),
-            label: 'MyWinery',
+            label: 'Vinos',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.explore),
-            label: 'Reviews',
+            label: 'Amigos',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.wine_bar),
+            label: 'Experiencias globales',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.wine_bar),
@@ -73,6 +79,9 @@ class _BottomNavScaffoldStateWM extends State<BottomNavScaffoldWM> {
     );
   }
 }
+
+
+
 
 
 

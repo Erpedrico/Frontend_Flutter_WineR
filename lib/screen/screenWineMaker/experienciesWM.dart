@@ -27,6 +27,7 @@ class _ExperienciesPageStateWM extends State<ExperienciesPageWM> {
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _contactnumberController = TextEditingController();
+  final TextEditingController _imageUrlController = TextEditingController();
   final List<Service> selectedServices = [];
   final TextEditingController _dateController = TextEditingController();
   DateTime? _selectedDate;
@@ -58,20 +59,19 @@ class _ExperienciesPageStateWM extends State<ExperienciesPageWM> {
 
   Future<void> _deleteExperience(String id) async {
     try {
-      int status = await _experienceService.deleteExperienceById(
-          id); // O reemplazar con `deleteExperience(id)` si está implementado
+      int status = await _experienceService.deleteExperienceById(id);
       if (status == 200) {
         setState(() {
           _experiences.removeWhere((experience) => experience.id == id);
         });
-        _loadExperiences(); // Recargar la lista de experiencias
+        _loadExperiences();
       } else {
         print('Error deleting experience');
       }
     } catch (e) {
       print('Error deleting experience: $e');
     }
-    _loadExperiences(); // Recargar la lista de experiencias
+    _loadExperiences();
   }
 
   Future<bool> _showDeleteConfirmationDialog(BuildContext context) async {
@@ -117,7 +117,6 @@ class _ExperienciesPageStateWM extends State<ExperienciesPageWM> {
     });
   }
 
-  // Función para mostrar el DatePicker
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -134,11 +133,8 @@ class _ExperienciesPageStateWM extends State<ExperienciesPageWM> {
 
   Future<void> _createExperience() async {
     try {
-      // Obtener el PerfilProvider desde el contexto
       final perfilProvider =
           Provider.of<PerfilProvider>(context, listen: false);
-
-      // Acceder al perfil actual almacenado en el PerfilProvider
       UserModel? perfil = perfilProvider.perfilUsuario;
       String? propietario = perfil?.id;
       String? mail = perfil?.mail;
@@ -154,6 +150,7 @@ class _ExperienciesPageStateWM extends State<ExperienciesPageWM> {
         );
         return;
       }
+
       final url = Uri.parse(
           'https://nominatim.openstreetmap.org/search?q=$address&format=json&limit=1');
 
@@ -177,20 +174,19 @@ class _ExperienciesPageStateWM extends State<ExperienciesPageWM> {
         print('Error al geocodificar dirección: $e');
         return;
       }
-      // Validar que los campos obligatorios estén presentes
+
       if (_titleController.text.isEmpty ||
           _descriptionController.text.isEmpty ||
           price == null ||
           _locationController.text.isEmpty ||
-          contactnumber == null) {
+          contactnumber == null ||
+          _imageUrlController.text.isEmpty) {
         print('Todos los campos obligatorios deben completarse.');
         return;
       }
 
-      // Crear lista de servicios (esto puede venir de una interfaz)
       List<Service> services = selectedServices;
 
-      // Crear el modelo de experiencia
       ExperienceModel newExperience = ExperienceModel(
         title: _titleController.text,
         description: _descriptionController.text,
@@ -199,26 +195,25 @@ class _ExperienciesPageStateWM extends State<ExperienciesPageWM> {
         location: _locationController.text,
         contactnumber: contactnumber,
         contactmail: mail,
-        rating: 0.0, // Inicializar con una calificación predeterminada
-        reviews: [], // No hay reseñas inicialmente
-        date: _selectedDate, // Fecha actual en formato ISO
-        services: services, // Servicios predefinidos
+        rating: 0.0,
+        reviews: [],
+        date: _selectedDate,
+        services: services,
         averageRating: 0.0,
+        imagen: _imageUrlController.text, // Agregar URL de la imagen
       );
 
-      // Enviar la experiencia al backend
       int status = await _experienceService.createExperience(newExperience);
 
       if (status == 201) {
-        // Limpiar campos si la experiencia se creó correctamente
         _titleController.clear();
         _descriptionController.clear();
         _priceController.clear();
         _locationController.clear();
         _contactnumberController.clear();
+        _imageUrlController.clear(); // Limpiar el campo de URL de la imagen
         selectedServices.clear();
         _loadExperiences();
-         // Recargar la lista de experiencias
         print(newExperience);
       } else {
         print('Error creating experience');
@@ -302,15 +297,19 @@ class _ExperienciesPageStateWM extends State<ExperienciesPageWM> {
             decoration: const InputDecoration(labelText: 'Número de contacto'),
           ),
           TextField(
-              controller: _dateController,
-              decoration: InputDecoration(labelText: 'Fecha'),
-              readOnly: true,
-              onTap: () => _selectDate(context),
-            ),
+            controller: _imageUrlController,
+            decoration: const InputDecoration(labelText: 'URL de la Imagen'),
+          ),
+          TextField(
+            controller: _dateController,
+            decoration: InputDecoration(labelText: 'Fecha'),
+            readOnly: true,
+            onTap: () => _selectDate(context),
+          ),
           const SizedBox(height: 16),
           Text('Selecciona los servicios:'),
           SizedBox(
-            height: 150, // Altura fija para la lista de servicios
+            height: 150,
             child: ListView(
               children: servicesOptions
                   .map(

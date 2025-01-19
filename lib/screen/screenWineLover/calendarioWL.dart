@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/models/userModel.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:get/get.dart'; // Importa GetX
 import '../../models/experienceModel.dart';
 import '../../services/userService.dart';
 import '../../providers/perfilProvider.dart';
@@ -160,6 +161,30 @@ class _CalendarioPageWLState extends State<CalendarioPageWL> {
                               : 'Selecciona un día para ver sus reservas'),
                         ),
                 ),
+                const SizedBox(height: 16.0),
+                // Botón para redirigir a /main
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Get.offNamed('/main');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue, // Color del botón
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24.0,
+                        vertical: 12.0,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                    ),
+                    child: const Text(
+                      'Ir a Inicio',
+                      style: TextStyle(fontSize: 16.0, color: Colors.white),
+                    ),
+                  ),
+                ),
               ],
             );
           }
@@ -168,3 +193,4 @@ class _CalendarioPageWLState extends State<CalendarioPageWL> {
     );
   }
 }
+

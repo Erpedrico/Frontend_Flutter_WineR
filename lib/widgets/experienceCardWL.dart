@@ -242,6 +242,46 @@ class _ExperienceCardStateWL extends State<ExperienceCardWL> {
     );
   }
 
+  Widget _buildExperienceImage(String? imageUrl) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: imageUrl != null
+          ? Image.network(
+              imageUrl,
+              height: 200,
+              width: double.infinity,
+              fit: BoxFit.cover,
+              loadingBuilder: (BuildContext context, Widget child,
+                  ImageChunkEvent? loadingProgress) {
+                if (loadingProgress == null) return child;
+                return Center(
+                  child: CircularProgressIndicator(
+                    value: loadingProgress.expectedTotalBytes != null
+                        ? loadingProgress.cumulativeBytesLoaded /
+                            (loadingProgress.expectedTotalBytes ?? 1)
+                        : null,
+                  ),
+                );
+              },
+              errorBuilder: (BuildContext context, Object error,
+                  StackTrace? stackTrace) {
+                return Image.asset(
+                  'assets/images/default_profile.png',
+                  height: 200,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                );
+              },
+            )
+          : Image.asset(
+              'assets/images/default_profile.png',
+              height: 200,
+              width: double.infinity,
+              fit: BoxFit.cover,
+            ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     String formattedDate = widget.experience.date != null
@@ -258,6 +298,8 @@ class _ExperienceCardStateWL extends State<ExperienceCardWL> {
               widget.experience.title ?? 'Sin título',
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
+            const SizedBox(height: 8),
+            _buildExperienceImage(widget.experience.imagen),
             const SizedBox(height: 8),
             Text(
                 'Descripción: ${widget.experience.description ?? 'Sin descripción'}'),
@@ -348,3 +390,4 @@ class _ExperienceCardStateWL extends State<ExperienceCardWL> {
     );
   }
 }
+

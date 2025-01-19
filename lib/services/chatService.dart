@@ -3,7 +3,8 @@ import 'package:flutter_application_1/models/userModel.dart';
 class ChatService {
   //final String baseUrl = "http://147.83.7.158:5000";
   //final String baseUrl = "http://127.0.0.1:3000"; // URL de tu backend Web
-  final String baseUrl = "http://10.0.2.2:3000"; // URL de tu backend Android
+  //final String baseUrl = "http://10.0.2.2:3000"; // URL de tu backend Android
+  final String baseUrl = "http://apiwiner.duckdns.org:5000";
   final Dio dio = Dio(); // Usa el prefijo 'Dio' para referenciar la clase Dio
   var statusCode;
   var data;
@@ -27,7 +28,7 @@ class ChatService {
 
       // Itera sobre los elementos y extrae las salas
       for (var item in data) {
-        String sala = item['room']?.toString() ?? 'Usuario desconocido';
+        String sala = item['name']?.toString() ?? 'Usuario desconocido';
         listadesalas.add(sala);
       }
 

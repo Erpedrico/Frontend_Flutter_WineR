@@ -78,8 +78,8 @@ class _ExperienceCardStateWM extends State<ExperienceCardWM> {
       return null;
     }
   }
-  
-   Future<void> _fetchOwnerName() async {
+
+  Future<void> _fetchOwnerName() async {
     final userService = UserService();
     final id = widget.experience.owner;
     final ownerName = await userService.getUserNameById(id);
@@ -87,6 +87,7 @@ class _ExperienceCardStateWM extends State<ExperienceCardWM> {
       _ownerName = ownerName;
     });
   }
+
   @override
   Widget build(BuildContext context) {
     String formattedDate = widget.experience.date != null
@@ -99,14 +100,58 @@ class _ExperienceCardStateWM extends State<ExperienceCardWM> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              widget.experience.title ?? 'Sin título',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            // Título y Propietario
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    widget.experience.title ?? 'Sin título',
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: widget.onDelete,
+                ),
+              ],
             ),
             const SizedBox(height: 8),
-            Text('Descripción: ${widget.experience.description ?? 'Sin descripción'}'),
             Text('Propietario: ${_ownerName ?? 'Sin propietario'}'),
             const SizedBox(height: 16),
+
+            // Imagen
+            if (widget.experience.imagen != null)
+              Container(
+                height: 200,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.grey),
+                  image: DecorationImage(
+                    image: NetworkImage(widget.experience.imagen!),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              )
+            else
+              Container(
+                height: 200,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.grey),
+                  color: Colors.grey[300],
+                ),
+                child: const Center(
+                  child: Text('Sin imagen disponible'),
+                ),
+              ),
+
+            const SizedBox(height: 16),
+
+            // Mapa
             Container(
               height: 200,
               width: double.infinity,
@@ -119,12 +164,14 @@ class _ExperienceCardStateWM extends State<ExperienceCardWM> {
                 child: FlutterMap(
                   options: MapOptions(
                     bounds: _bounds,
-                    boundsOptions: FitBoundsOptions(padding: EdgeInsets.all(10)),
+                    boundsOptions: const FitBoundsOptions(
+                        padding: EdgeInsets.all(10)),
                     zoom: 13.0,
                   ),
                   children: [
                     TileLayer(
-                      urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                      urlTemplate:
+                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                       subdomains: ['a', 'b', 'c'],
                     ),
                     if (_coordinates != null)
@@ -144,22 +191,26 @@ class _ExperienceCardStateWM extends State<ExperienceCardWM> {
                 ),
               ),
             ),
+
             const SizedBox(height: 16),
+
+            // Información adicional
             if (_showFullInfo) ...[
               Text('Precio: \$${widget.experience.price ?? 'N/A'}'),
-              Text('Correo de contacto: ${widget.experience.contactmail ?? 'Sin Correo de contacto'}'),
-              Text('Número de contacto: ${widget.experience.contactnumber ?? 'Sin número de contacto'}'),
-              Text('Puntuación actual: ${_currentRating?.toStringAsFixed(1) ?? 'N/A'}'),
-              Text('Calificación promedio: ${widget.experience.averageRating?.toStringAsFixed(1) ?? 'N/A'}'),
-              Text('Servicios:'),
+              Text(
+                  'Correo de contacto: ${widget.experience.contactmail ?? 'Sin correo'}'),
+              Text(
+                  'Número de contacto: ${widget.experience.contactnumber ?? 'Sin número'}'),
               Text('Fecha: $formattedDate'),
+              Text('Servicios:'),
               Column(
                 children: widget.experience.services!.map((service) {
                   return Text('${service.icon} ${service.label}');
                 }).toList(),
               ),
             ],
-            const SizedBox(height: 8),
+
+            // Botón para mostrar más/menos
             ElevatedButton(
               onPressed: () {
                 setState(() {
@@ -168,18 +219,10 @@ class _ExperienceCardStateWM extends State<ExperienceCardWM> {
               },
               child: Text(_showFullInfo ? 'Ver menos' : 'Ver más'),
             ),
-            const SizedBox(height: 16),
-
-            Align(
-              alignment: Alignment.centerRight,
-              child: IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: widget.onDelete,
-              ),
-            ),
           ],
         ),
       ),
     );
   }
 }
+

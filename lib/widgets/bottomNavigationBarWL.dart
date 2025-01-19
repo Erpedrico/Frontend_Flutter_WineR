@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/screen/screenWineLover/winesWL.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_application_1/conciencia_digital/timerService.dart';
 import 'package:flutter_application_1/screen/screenWineLover/homeWL.dart';
@@ -28,6 +29,7 @@ class _BottomNavScaffoldState extends State<BottomNavScaffold> {
     MapPage(),
     ExperienciesPageWL(),  
     BookingsScreen(userToken: 'your-user-token-here'), // Añadir la pantalla de reservas, asegúrate de pasar el token del usuario       
+    WinesWLPage(),
     PerfilPage(),
   ];
 
@@ -107,6 +109,10 @@ class _BottomNavScaffoldState extends State<BottomNavScaffold> {
           BottomNavigationBarItem( // Añadir nuevo botón para reservas
             icon: Icon(Icons.book),
             label: 'Reservas',
+          ),
+          BottomNavigationBarItem( // Añadir nuevo botón para reservas
+            icon: Icon(Icons.wine_bar),
+            label: 'Vinos',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),

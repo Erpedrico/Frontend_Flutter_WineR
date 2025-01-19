@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/services/experienceService.dart';
 import 'package:flutter_application_1/models/experienceModel.dart';
 import 'package:flutter_application_1/Widgets/experienceCardWL.dart';
-
+import 'package:get/get.dart'; // Importar para manejar `Get.offNamed`
 
 class ExperienciesPageWL extends StatefulWidget {
   const ExperienciesPageWL({super.key});
@@ -39,35 +39,61 @@ class _ExperienciesPageStateWL extends State<ExperienciesPageWL> {
         _isLoading = false;
       });
     }
-  }  
+  }
 
-@override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Gestión de Experiencias')),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: _experiences.length,
-                    itemBuilder: (context, index) {
-                      return ExperienceCardWL(
-                        experience: _experiences[index],
-                        onRatingUpdate: (rating) async {
-                          setState(() {
-                            _experiences[index].rating = rating;
-                            _loadExperiences();
-                          });
-                        },
-                      );
-                    },
+      appBar: AppBar(
+        title: const Text('Gestión de Experiencias'),
+        backgroundColor: const Color(0xFFFF6F61), // Color rojo coral del encabezado
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.calendar_today),
+            onPressed: () {
+              Get.offNamed('/calendarioWL'); // Navegar a la página de calendario
+            },
+          ),
+        ],
+      ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFFFF6F61), // Rojo coral fuerte
+              Color(0xFFFFB3B3), // Rosa claro
+            ],
+          ),
+        ),
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : Column(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: _experiences.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10.0, vertical: 5.0),
+                          child: ExperienceCardWL(
+                            experience: _experiences[index],
+                            onRatingUpdate: (rating) async {
+                              setState(() {
+                                _experiences[index].rating = rating;
+                                _loadExperiences();
+                              });
+                            },
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                ),
-                
-              ],
-            ),
+                ],
+              ),
+      ),
     );
   }
 }

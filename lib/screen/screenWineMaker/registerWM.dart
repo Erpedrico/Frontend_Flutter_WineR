@@ -43,6 +43,7 @@ class _RegisterPageStateWM extends State<RegisterPageWM> {
       tipo: 'wineMaker',
       amigos: [],
       solicitudes: [],
+      experiences: [],
     );
     print(user.username); 
 
@@ -55,7 +56,7 @@ class _RegisterPageStateWM extends State<RegisterPageWM> {
         // Usamos el Provider para acceder a la instancia de PerfilProvider y actualizar el usuario
         final perfilProvider = Provider.of<PerfilProvider>(context, listen: false);
         perfilProvider.updateUser(response); // Actualizamos el perfil del usuario
-        Get.offNamed('/main'); // Redirigimos a la página principal
+        Get.offNamed('/mainWM'); // Redirigimos a la página principal
       } else {
         // Si el login no fue exitoso, mostramos un error
         setState(() {

@@ -1,3 +1,4 @@
+import 'dart:io'; // Import para manejar imágenes locales
 import 'package:latlong2/latlong.dart';
 
 class ExperienceModel {
@@ -5,6 +6,7 @@ class ExperienceModel {
   String? title; // Título de la experiencia
   String? description; // Descripción de la experiencia
   String? owner; // ID del creador
+  String? imagen;
   List<String>? participants;
   int? price; // Precio de la experiencia
   String? location; // Dirección o ubicación de la experiencia
@@ -33,6 +35,7 @@ class ExperienceModel {
     this.date,
     this.services,
     this.averageRating,
+    this.imagen,
   });
 
   // Constructor desde JSON
@@ -57,6 +60,7 @@ class ExperienceModel {
           ?.map((service) => Service.fromJson(service))
           .toList(),
       averageRating: (json['averageRating'] != null) ? json['averageRating'].toDouble() : null, // Conversión a double
+      imagen: json['image'], // Añadido imagen aquí
     );
   }
 
@@ -79,6 +83,7 @@ class ExperienceModel {
       'date': date?.toIso8601String(),
       'services': services?.map((service) => service.toJson()).toList(),
       'averageRating': averageRating,
+      'image': imagen, // Añadido imagen aquí
     };
   }
 }

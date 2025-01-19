@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/providers/perfilProvider.dart';
 import 'package:flutter_application_1/conciencia_digital/timerService.dart';
 import 'package:flutter_application_1/screen/quiz.dart';
+import 'package:flutter_application_1/screen/screenWineLover/calendarioWL.dart';
 import 'package:flutter_application_1/screen/settings.dart';
 import 'package:flutter_application_1/screen/support.dart';
 import 'package:flutter_application_1/screen/updateProfile.dart';
@@ -75,6 +76,7 @@ class MyApp extends StatelessWidget {
             GetPage(name: '/support', page: () => SupportPage()),
             GetPage(name: '/updateProfile', page: () => UpdateProfilePage()),
             GetPage(name: '/quiz', page: () => QuizPage()),
+            GetPage(name: '/calendarioWL', page: () => CalendarioPageWL()),
           ],
         );
       },

@@ -1,11 +1,13 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:flutter_application_1/models/experienceModel.dart';
 import 'package:flutter_application_1/models/userModel.dart';
 import 'package:dio/dio.dart';
 
 class ExperienceService {
   //final String baseUrl =  "http://127.0.0.1:3000/api/experiencias"; // URL de tu backend web
-  final String baseUrl = "http://10.0.2.2:3000/api/experiencias"; // URL de tu backend Android
+  //final String baseUrl = "http://10.0.2.2:3000/api/experiencias"; // URL de tu backend Android
+  final String baseUrl = "http://apiwiner.duckdns.org:5000/api/experiencias";
   final Dio dio = Dio(); // Instancia de Dio para realizar solicitudes HTTP
   var statusCode;
   var data;
@@ -263,6 +265,20 @@ class ExperienceService {
     } catch (e) {
       print('Error al obtener las experiencias: $e');
       return [];
+    }
+  }
+
+  Future<ExperienceModel?> getExperienceById(BuildContext context, String experienceId) async {
+    try {
+      final response = await dio.get('$baseUrl/$experienceId');
+      if (response.statusCode == 200) {
+        return ExperienceModel.fromJson(response.data);
+      } else {
+        throw Exception('Failed to load experience');
+      }
+    } catch (e) {
+      print('Error al obtener la experiencia: $e');
+      return null;
     }
   }
 }
