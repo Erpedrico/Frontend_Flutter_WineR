@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/providers/perfilProvider.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import '../models/experienceModel.dart';
@@ -106,6 +107,7 @@ class _ExperienceCardStateWL extends State<ExperienceCardWL> {
               onPressed: () {
                 Navigator.of(context).pop();
                 _joinExperience();
+                _addParticipantToExperience();
               },
               child: const Text('Confirmar'),
             ),
@@ -136,7 +138,8 @@ class _ExperienceCardStateWL extends State<ExperienceCardWL> {
     }
 
     final userService = UserService();
-    final status = await userService.joinExperience(userId!, experienceId);
+    final status = await userService.joinExperience( userId!, experienceId);
+
 
     if (status == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -148,6 +151,39 @@ class _ExperienceCardStateWL extends State<ExperienceCardWL> {
         const SnackBar(content: Text('Usuario o experiencia no encontrado')),
       );
     } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error al apuntarse a la experiencia')),
+      );
+    }
+  }
+
+  Future<void> _addParticipantToExperience() async {
+    final user = context.read<PerfilProvider>().perfilUsuario;
+
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Usuario no logueado')),
+      );
+      return;
+    }
+
+    final userId = user.id;
+    final experienceId = widget.experience.id;
+
+    if (experienceId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error: ID de experiencia no válido')),
+      );
+      return;
+    }
+
+    final experienceService = ExperienceService();
+    try {
+      await experienceService.addParticipantToExperience(experienceId, userId!);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Te has apuntado con éxito a la experiencia')),
+      );
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error al apuntarse a la experiencia')),
       );
@@ -208,6 +244,9 @@ class _ExperienceCardStateWL extends State<ExperienceCardWL> {
 
   @override
   Widget build(BuildContext context) {
+    String formattedDate = widget.experience.date != null
+        ? DateFormat('dd-MM-yyyy').format(widget.experience.date!)
+        : 'Fecha no disponible';
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Padding(
@@ -277,6 +316,8 @@ class _ExperienceCardStateWL extends State<ExperienceCardWL> {
                   'Calificación promedio: ${widget.experience.averageRating?.toStringAsFixed(1) ?? 'N/A'}'),
               Text(
                   'Servicios:'),
+              Text(
+                  'Fecha: $formattedDate'),
               Column(
                 children: widget.experience.services!.map((service) {
                   return Text('${service.icon} ${service.label}');

@@ -5,6 +5,7 @@ class ExperienceModel {
   String? title; // Título de la experiencia
   String? description; // Descripción de la experiencia
   String? owner; // ID del creador
+  List<String>? participants;
   int? price; // Precio de la experiencia
   String? location; // Dirección o ubicación de la experiencia
   int? contactnumber; // Número de contacto
@@ -12,7 +13,7 @@ class ExperienceModel {
   LatLng? coordinates; // Coordenadas (calculadas en el frontend si es necesario)
   double? rating; // Calificación de la experiencia
   List<String>? reviews; // Lista de IDs de las reseñas
-  String? date; // Fecha de la experiencia
+  DateTime? date; // Fecha de la experiencia
   List<Service>? services; // Lista de servicios ofrecidos
   double? averageRating;
 
@@ -21,6 +22,7 @@ class ExperienceModel {
     this.title,
     this.description,
     this.owner,
+    this.participants,
     this.price,
     this.location,
     this.contactnumber,
@@ -40,6 +42,7 @@ class ExperienceModel {
       title: json['title'],
       description: json['description'],
       owner: json['owner'],
+      participants: json['participants'] != null ? List<String>.from(json['participants']) : [],
       price: json['price'],
       location: json['location'],
       contactnumber: json['contactnumber'],
@@ -49,7 +52,7 @@ class ExperienceModel {
           : null,
       rating: (json['rating'] != null) ? json['rating'].toDouble() : null,
       reviews: (json['reviews'] as List<dynamic>?)?.map((e) => e.toString()).toList(),
-      date: json['date'],
+      date: json['date'] != null ? DateTime.parse(json['date']) : null,
       services: (json['services'] as List<dynamic>?)
           ?.map((service) => Service.fromJson(service))
           .toList(),
@@ -64,6 +67,7 @@ class ExperienceModel {
       'title': title,
       'description': description,
       'owner': owner,
+      'participants': participants,
       'price': price,
       'location': location,
       'contactnumber': contactnumber,
@@ -72,7 +76,7 @@ class ExperienceModel {
       'longitude': coordinates?.longitude,
       'rating': rating,
       'reviews': reviews,
-      'date': date,
+      'date': date?.toIso8601String(),
       'services': services?.map((service) => service.toJson()).toList(),
       'averageRating': averageRating,
     };

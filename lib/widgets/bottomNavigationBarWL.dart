@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/screen/screenWineLover/calendarioWL.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_application_1/conciencia_digital/timerService.dart';
 import 'package:flutter_application_1/screen/screenWineLover/homeWL.dart';
@@ -27,9 +28,10 @@ class _BottomNavScaffoldState extends State<BottomNavScaffold> {
     UserPage(),          
     ExperienciesPageWL(),
     HomePage(),
-    MapPage(),
-    PerfilPage(),  
     BookingsScreen(userToken: 'your-user-token-here'), // Añadir la pantalla de reservas, asegúrate de pasar el token del usuario       
+    CalendarioPageWL(),
+    MapPage(),  
+    PerfilPage(),  
   ];
 
   // Método para manejar el cambio de pestaña
@@ -105,6 +107,14 @@ class _BottomNavScaffoldState extends State<BottomNavScaffold> {
             icon: Icon(Icons.wine_bar),
             label: 'Home',
           ),
+          BottomNavigationBarItem( // Añadir nuevo botón para reservas
+            icon: Icon(Icons.book),
+            label: 'Reservas',
+          ),
+          BottomNavigationBarItem( // Añadir nuevo botón para reservas
+            icon: Icon(Icons.calendar_month),
+            label: 'Calendario',
+          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.map),
             label: 'Mapa',
@@ -112,10 +122,6 @@ class _BottomNavScaffoldState extends State<BottomNavScaffold> {
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Perfil',
-          ),
-          BottomNavigationBarItem( // Añadir nuevo botón para reservas
-            icon: Icon(Icons.book),
-            label: 'Reservas',
           ),
         ],
       ),

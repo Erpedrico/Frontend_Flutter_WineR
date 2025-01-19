@@ -5,11 +5,9 @@ import 'package:flutter_application_1/providers/perfilProvider.dart';
 import 'package:flutter_application_1/services/experienceService.dart';
 import 'package:flutter_application_1/models/experienceModel.dart';
 import 'package:flutter_application_1/Widgets/experienceCardWM.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
-import 'package:dio/dio.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 class ExperienciesPageWM extends StatefulWidget {
   const ExperienciesPageWM({super.key});
@@ -28,9 +26,10 @@ class _ExperienciesPageStateWM extends State<ExperienciesPageWM> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
-  final TextEditingController _contactnumberController =
-      TextEditingController();
+  final TextEditingController _contactnumberController = TextEditingController();
   final List<Service> selectedServices = [];
+  final TextEditingController _dateController = TextEditingController();
+  DateTime? _selectedDate;
 
   @override
   void initState() {
@@ -118,6 +117,21 @@ class _ExperienciesPageStateWM extends State<ExperienciesPageWM> {
     });
   }
 
+  // Función para mostrar el DatePicker
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate ?? DateTime.now(),
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != _selectedDate)
+      setState(() {
+        _selectedDate = picked;
+        _dateController.text = DateFormat('yyyy-MM-dd').format(picked);
+      });
+  }
+
   Future<void> _createExperience() async {
     try {
       // Obtener el PerfilProvider desde el contexto
@@ -187,7 +201,7 @@ class _ExperienciesPageStateWM extends State<ExperienciesPageWM> {
         contactmail: mail,
         rating: 0.0, // Inicializar con una calificación predeterminada
         reviews: [], // No hay reseñas inicialmente
-        date: DateTime.now().toIso8601String(), // Fecha actual en formato ISO
+        date: _selectedDate, // Fecha actual en formato ISO
         services: services, // Servicios predefinidos
         averageRating: 0.0,
       );
@@ -202,7 +216,9 @@ class _ExperienciesPageStateWM extends State<ExperienciesPageWM> {
         _priceController.clear();
         _locationController.clear();
         _contactnumberController.clear();
-        _loadExperiences(); // Recargar la lista de experiencias
+        selectedServices.clear();
+        _loadExperiences();
+         // Recargar la lista de experiencias
         print(newExperience);
       } else {
         print('Error creating experience');
@@ -285,6 +301,12 @@ class _ExperienciesPageStateWM extends State<ExperienciesPageWM> {
             keyboardType: TextInputType.phone,
             decoration: const InputDecoration(labelText: 'Número de contacto'),
           ),
+          TextField(
+              controller: _dateController,
+              decoration: InputDecoration(labelText: 'Fecha'),
+              readOnly: true,
+              onTap: () => _selectDate(context),
+            ),
           const SizedBox(height: 16),
           Text('Selecciona los servicios:'),
           SizedBox(
