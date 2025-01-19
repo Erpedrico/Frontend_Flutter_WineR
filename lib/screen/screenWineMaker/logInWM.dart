@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/models/userModel.dart';
 import 'package:flutter_application_1/providers/perfilProvider.dart';
 import 'package:flutter_application_1/services/userService.dart';
-import 'package:flutter_application_1/services/auth_services.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
@@ -77,52 +76,6 @@ class _LogInPageStateWM extends State<LogInPageWM> {
     Get.offNamed('/');
   }
 
-  void logInWithGoogle() async {
-    final credenciales = await AuthService().signInWithGoogle();
-
-    final String? idToken = await credenciales?.user?.getIdToken();
-    debugPrint(credenciales?.user?.displayName);
-    debugPrint(credenciales?.user?.photoURL);
-    debugPrint(credenciales?.user?.email);
-    debugPrint(credenciales?.user?.uid);
-    debugPrint('Token de Google (idToken): $idToken');
-
-    final logIn = (
-      username: credenciales?.user?.displayName,
-      password: credenciales?.user?.uid,
-    );
-
-    try {
-      // Llamada al servicio para iniciar sesión
-      final response = await userService.logIn(logIn);
-
-      if (response is UserModel) {
-        // Si el login fue exitoso, actualizamos el perfil y redirigimos
-        // Usamos el Provider para acceder a la instancia de PerfilProvider y actualizar el usuario
-        final perfilProvider = Provider.of<PerfilProvider>(context, listen: false);
-        perfilProvider.updateUser(response); // Actualizamos el perfil del usuario
-        if (response.tipo=='wineLover'){
-          Get.offNamed('/main');
-        } else{
-          Get.offNamed('/mainWM');
-        } 
-      } else {
-        // Si el login no fue exitoso, mostramos un error
-        setState(() {
-          errorMessage = 'Usuario o contraseña incorrectos';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        errorMessage = 'Error: No se pudo conectar con la API';
-      });
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -176,18 +129,6 @@ class _LogInPageStateWM extends State<LogInPageWM> {
                   style: TextStyle(color: Colors.white), // Texto blanco
                 ),
                 ),
-                ElevatedButton(
-                  onPressed: logInWithGoogle,
-                  child: Text('Iniciar sesion con google',
-                  style: TextStyle(color: Colors.white), // Texto blanco
-                ),
-                style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFFB04D47), // Fondo rosa-rojo (puedes cambiar el valor según tu preferencia)
-                shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20), // Bordes redondeados
-                ),
-                ),
-              ),
           ],
         ),
       ),

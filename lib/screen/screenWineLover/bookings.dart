@@ -16,16 +16,21 @@ class BookingsScreen extends StatefulWidget {
 }
 
 class _BookingsScreenState extends State<BookingsScreen> {
+  Map<DateTime, List<ExperienceModel>> _bookings = {};
   late Future<List<ExperienceModel>> _currentExperiences;
   final UserService _userService = UserService();
 
   @override
   void initState() {
-    final perfilProvider = Provider.of<PerfilProvider>(context, listen: false);
+   super.initState();
+    _fetchBookings();
+  }
+
+  Future<void> _fetchBookings() async {
+     final perfilProvider = Provider.of<PerfilProvider>(context, listen: false);
     UserModel? perfil = perfilProvider.perfilUsuario;
     String? token = perfil?.token;
 
-    super.initState();
     _userService.token = widget.userToken;
     _currentExperiences = _userService.fetchUserExperiences(token);
   }

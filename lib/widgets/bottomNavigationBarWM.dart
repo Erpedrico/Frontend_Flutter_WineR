@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/screen/screenWineMaker/calendarioWM.dart';
+import 'package:flutter_application_1/screen/screenWineMaker/experienciasPropias.dart';
 import 'package:flutter_application_1/screen/screenWineMaker/homeWM.dart';
 import 'package:flutter_application_1/screen/screenWineMaker/perfilPersonalWM.dart';
 import 'package:flutter_application_1/screen/screenWineMaker/userWM.dart';
@@ -20,7 +22,8 @@ class _BottomNavScaffoldStateWM extends State<BottomNavScaffoldWM> {
   final List<Widget> _pages = [   
     HomePageWM(),
     UserPage(),        
-    ExperienciesPageWM(),
+    ExperienciasPropiasPage(),
+    CalendarioPageWM(),
     PerfilPage(),           
   ];
 
@@ -55,7 +58,11 @@ class _BottomNavScaffoldStateWM extends State<BottomNavScaffoldWM> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.wine_bar),
-            label: 'Bookings',
+            label: 'Mis Experiencias',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_month),
+            label: 'Calendario',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
@@ -66,6 +73,8 @@ class _BottomNavScaffoldStateWM extends State<BottomNavScaffoldWM> {
     );
   }
 }
+
+
 
 
 

@@ -42,6 +42,7 @@ class _RegisterPageState extends State<RegisterPage> {
       tipo: 'wineLover',
       amigos: [],
       solicitudes: [],
+      experiences: [],
     );
     print(user.username); 
 

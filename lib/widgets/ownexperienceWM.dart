@@ -7,12 +7,12 @@ import 'package:latlong2/latlong.dart';
 import '../models/experienceModel.dart';
 import 'package:http/http.dart' as http;
 
-class ExperienceCardWM extends StatefulWidget {
+class OwnExperienceCardWM extends StatefulWidget {
   final ExperienceModel experience;
   final VoidCallback onDelete;
   final ValueChanged<double> onRatingUpdate;
 
-  const ExperienceCardWM({
+  const OwnExperienceCardWM({
     super.key,
     required this.experience,
     required this.onDelete,
@@ -20,14 +20,15 @@ class ExperienceCardWM extends StatefulWidget {
   });
 
   @override
-  _ExperienceCardStateWM createState() => _ExperienceCardStateWM();
+  _OwnExperienceCardStateWM createState() => _OwnExperienceCardStateWM();
 }
 
-class _ExperienceCardStateWM extends State<ExperienceCardWM> {
+class _OwnExperienceCardStateWM extends State<OwnExperienceCardWM> {
   LatLng? _coordinates;
   LatLngBounds? _bounds;
   double? _currentRating;
   String? _ownerName;
+  List<String> _participantNames = [];
   bool _showFullInfo = false;
 
   @override
@@ -35,6 +36,7 @@ class _ExperienceCardStateWM extends State<ExperienceCardWM> {
     super.initState();
     _fetchCoordinates();
     _fetchOwnerName();
+    _fetchParticipantNames();
     _currentRating = widget.experience.rating ?? 0.0;
   }
 
@@ -81,12 +83,29 @@ class _ExperienceCardStateWM extends State<ExperienceCardWM> {
   
    Future<void> _fetchOwnerName() async {
     final userService = UserService();
-    final id = widget.experience.owner;
-    final ownerName = await userService.getUserNameById(id);
+    final idOwner = widget.experience.owner;
+    final ownerName = await userService.getUserNameById(idOwner);
     setState(() {
       _ownerName = ownerName;
     });
   }
+
+   Future<void> _fetchParticipantNames() async {
+    final userService = UserService();
+    final participantIds = widget.experience.participants;
+
+    if (participantIds != null) {
+      List<String> participantNames = [];
+      for (String id in participantIds) {
+        final participantName = await userService.getUserNameById(id);
+        participantNames.add(participantName?? 'Sin nombre');
+      }
+      setState(() {
+        _participantNames = participantNames;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     String formattedDate = widget.experience.date != null
@@ -158,6 +177,8 @@ class _ExperienceCardStateWM extends State<ExperienceCardWM> {
                   return Text('${service.icon} ${service.label}');
                 }).toList(),
               ),
+              Text('Participantes:'),
+              ..._participantNames.map((name) => Text(name)).toList(),
             ],
             const SizedBox(height: 8),
             ElevatedButton(

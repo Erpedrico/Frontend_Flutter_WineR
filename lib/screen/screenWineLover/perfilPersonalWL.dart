@@ -1,7 +1,8 @@
+import 'dart:io'; // Import para manejar imágenes locales
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/providers/perfilProvider.dart';
 import 'package:flutter_application_1/models/userModel.dart';
-import 'package:flutter_application_1/providers/settings_provider.dart'; // Asegúrate de importar SettingsProvider
+import 'package:flutter_application_1/providers/settings_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:get/get.dart';
 
@@ -22,7 +23,7 @@ class PerfilPage extends StatelessWidget {
 
     void cerrarSesion() {
       perfilProvider.deleteUser();
-      Get.offNamed('/login');
+      Get.offNamed('/');
     }
 
     return Scaffold(
@@ -49,7 +50,7 @@ class PerfilPage extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 40,
-                    backgroundImage: AssetImage('assets/images/default_profile.png'),
+                    backgroundImage: _getImageProvider(perfil), // Obtener imagen según origen
                   ),
                   SizedBox(width: 16),
                   Expanded(
@@ -72,7 +73,7 @@ class PerfilPage extends StatelessWidget {
                         Row(
                           children: [
                             Text(
-                              '${perfil.amigos?.length} Amigos', // Número de amigos
+                              '${perfil.amigos?.length ?? 0} Amigos', // Número de amigos
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
@@ -80,7 +81,7 @@ class PerfilPage extends StatelessWidget {
                             ),
                             SizedBox(width: 16),
                             Text(
-                              '${perfil.experiences?.length} Experiencias', // Número de experiencias
+                              '${perfil.experiences?.length ?? 0} Experiencias', // Número de experiencias
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
@@ -169,6 +170,19 @@ class PerfilPage extends StatelessWidget {
     );
   }
 
+  /// Obtiene la imagen de perfil del usuario.
+  /// Manejamos tanto imágenes locales como remotas.
+  ImageProvider _getImageProvider(UserModel perfil) {
+    if (perfil.imagen != null && perfil.imagen!.isNotEmpty) {
+      if (perfil.imagen!.startsWith('http') || perfil.imagen!.startsWith('https')) {
+        return NetworkImage(perfil.imagen!); // Imagen remota
+      } else if (File(perfil.imagen!).existsSync()) {
+        return FileImage(File(perfil.imagen!)); // Imagen local
+      }
+    }
+    return AssetImage('assets/images/default_profile.png'); // Imagen predeterminada
+  }
+
   Widget _buildOptionTile({
     required BuildContext context,
     required IconData icon,
@@ -190,3 +204,4 @@ class PerfilPage extends StatelessWidget {
     );
   }
 }
+

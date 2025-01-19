@@ -1,10 +1,11 @@
+import 'dart:convert';
 import 'package:flutter_application_1/models/experienceModel.dart';
 import 'package:flutter_application_1/models/userModel.dart';
 import 'package:dio/dio.dart';
 
 class ExperienceService {
-  final String baseUrl = "http://127.0.0.1:3000/api/experiencias"; // URL de tu backend web
-  //final String baseUrl = "http://10.0.2.2:3000/api/experiencias"; // URL de tu backend Android
+  //final String baseUrl =  "http://127.0.0.1:3000/api/experiencias"; // URL de tu backend web
+  final String baseUrl = "http://10.0.2.2:3000/api/experiencias"; // URL de tu backend Android
   final Dio dio = Dio(); // Instancia de Dio para realizar solicitudes HTTP
   var statusCode;
   var data;
@@ -15,7 +16,7 @@ class ExperienceService {
     try {
       // Enviar solicitud POST para crear una nueva experiencia
       Response response = await dio.post(
-        baseUrl,
+        '$baseUrl/flutter',
         data: newExperience.toJson(),
       );
 
@@ -163,7 +164,49 @@ class ExperienceService {
     }
   }
 
-  Future<int> addRatingWithComment(String experienceId, String userId, double rating, String comment) async {
+  Future<void> addParticipantToExperience(String experienceId, String userId) async {
+    try {
+      final response = await dio.patch(
+        '$baseUrl/experiences/$experienceId/participants/$userId',
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to join experience');
+      }
+    } catch (e) {
+      print('Error al unirse a la experiencia: $e');
+      throw e;
+    }
+  }
+
+  Future<int> addParticipantToExperiencia(String experienceId, String userId) async {
+    try {
+      // Construir URL
+      final url = '$baseUrl/Participant/$experienceId/$userId';
+
+      // Enviar solicitud POST
+      Response response = await dio.post(url);
+
+      // Verificar el código de estado
+      final statusCode = response.statusCode;
+      print('Status code: $statusCode');
+      print('Data: ${response.data}');
+
+      if (statusCode == 200) {
+        print('Te has apuntado a la experiencia con éxito.');
+        return 200; // Éxito
+      } else {
+        print('Error al apuntarse a la experiencia.');
+        return statusCode ?? -1; // Devuelve el código de error
+      }
+    } catch (e) {
+      print('Error en joinExperience: $e');
+      return -1; // Otro error
+    }
+  }
+
+  Future<int> addRatingWithComment(
+      String experienceId, String userId, double rating, String comment) async {
     try {
       final response = await dio.post(
         '$baseUrl/rate/$experienceId/$userId',
@@ -192,7 +235,8 @@ class ExperienceService {
     }
   }*/
 
-  Future<List<Map<String, dynamic>>> getRatingWithComment(String experienceId) async {
+  Future<List<Map<String, dynamic>>> getRatingWithComment(
+      String experienceId) async {
     try {
       final response = await dio.get('$baseUrl/ratings/$experienceId');
       if (response.statusCode == 200) {
@@ -202,6 +246,22 @@ class ExperienceService {
       }
     } catch (e) {
       print('Error al obtener las valoraciones: $e');
+      return [];
+    }
+  }
+
+  Future<List<ExperienceModel>> getExperiencesByOwner(String ownerId) async {
+    try {
+      final response = await dio.get('$baseUrl/user/exp/$ownerId');
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data;
+        return data.map((json) => ExperienceModel.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load experiences');
+      }
+    } catch (e) {
+      print('Error al obtener las experiencias: $e');
       return [];
     }
   }

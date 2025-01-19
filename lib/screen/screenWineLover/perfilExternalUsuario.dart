@@ -1,3 +1,4 @@
+import 'dart:io'; // Import para manejar imágenes locales
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/providers/perfilProvider.dart';
 import 'package:flutter_application_1/models/userModel.dart';
@@ -77,9 +78,7 @@ class PerfilExternalPage extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 50,
-                    backgroundImage: //perfil.photoUrl != null
-                        //? NetworkImage(perfil.photoUrl!)
-                        AssetImage('assets/images/default_profile.png') as ImageProvider,
+                    backgroundImage: _getImage(perfil), // Obtener la imagen del perfil
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -138,6 +137,18 @@ class PerfilExternalPage extends StatelessWidget {
       ),
     );
   }
+
+  /// Obtiene la imagen de perfil del usuario.
+  /// Manejamos tanto imágenes locales como remotas.
+  ImageProvider _getImage(UserModel perfil) {
+    // Si la imagen está disponible, verificamos si es remota o local
+    if (perfil.imagen != null && perfil.imagen!.isNotEmpty) {
+      if (perfil.imagen!.startsWith('http') || perfil.imagen!.startsWith('https')) {
+        return NetworkImage(perfil.imagen!); // Imagen remota
+      } else if (File(perfil.imagen!).existsSync()) {
+        return FileImage(File(perfil.imagen!)); // Imagen local
+      }
+    }
+    return AssetImage('assets/images/default_profile.png'); // Imagen predeterminada
+  }
 }
-
-

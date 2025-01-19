@@ -58,6 +58,7 @@ class _ExperienciesPageStateWL extends State<ExperienciesPageWL> {
                         onRatingUpdate: (rating) async {
                           setState(() {
                             _experiences[index].rating = rating;
+                            _loadExperiences();
                           });
                         },
                       );

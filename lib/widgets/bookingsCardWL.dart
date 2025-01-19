@@ -4,6 +4,7 @@ import 'package:flutter_application_1/providers/perfilProvider.dart';
 import 'package:flutter_application_1/services/userService.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import '../models/experienceModel.dart';
@@ -95,15 +96,9 @@ class _BookingsCardStateWL extends State<BookingsCardWL> {
     try {
       final response =
           await experienceService.getRatingWithComment(widget.experience.id!);
-      //if (response != null && response.isNotEmpty) {
       setState(() {
         _reviews = response;
       });
-      /*} else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No hay valoraciones disponibles')),
-        );
-      }*/
     } catch (e) {
       print('Error al obtener las valoraciones: $e');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -159,6 +154,7 @@ class _BookingsCardStateWL extends State<BookingsCardWL> {
               onPressed: () {
                 _submitRating(rating, comment);
                 Navigator.of(context).pop();
+                _fetchReviews();
               },
               child: const Text('Enviar'),
             ),
@@ -204,7 +200,6 @@ class _BookingsCardStateWL extends State<BookingsCardWL> {
 
   Future<void> _showReviewsDialog() async {
     await _fetchReviews();
-
     showDialog(
       context: context,
       builder: (context) {
@@ -221,7 +216,8 @@ class _BookingsCardStateWL extends State<BookingsCardWL> {
                       final review = _reviews[index];
                       return ListTile(
                         leading: Icon(Icons.star, color: Colors.amber),
-                        title: Text('Puntuación: ${review['rating']}'),
+                        title: Text(
+                            'Calificación promedio: ${widget.experience.averageRating?.toStringAsFixed(1) ?? 'N/A'}'),
                         subtitle: Text(review['comment']),
                       );
                     },
@@ -240,6 +236,9 @@ class _BookingsCardStateWL extends State<BookingsCardWL> {
 
   @override
   Widget build(BuildContext context) {
+    String formattedDate = widget.experience.date != null
+        ? DateFormat('dd-MM-yyyy').format(widget.experience.date!)
+        : 'Fecha no disponible';
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Padding(
@@ -306,7 +305,10 @@ class _BookingsCardStateWL extends State<BookingsCardWL> {
                   'Puntuación actual: ${_currentRating?.toStringAsFixed(1) ?? 'N/A'}'),
               Text(
                   'Calificación promedio: ${widget.experience.averageRating?.toStringAsFixed(1) ?? 'N/A'}'),
-              Text('Servicios:'),
+              Text(
+                  'Servicios:'),
+              Text(
+                  'Fecha: $formattedDate'),
               Column(
                 children: widget.experience.services!.map((service) {
                   return Text('${service.icon} ${service.label}');
@@ -314,8 +316,8 @@ class _BookingsCardStateWL extends State<BookingsCardWL> {
               ),
             ],
             ElevatedButton(
-                onPressed: () => _showReviewsDialog(),
-                child: const Text('Ver valoraciones'),
+              onPressed: () => _showReviewsDialog(),
+              child: const Text('Ver valoraciones'),
             ),
             const SizedBox(height: 8),
             ElevatedButton(
