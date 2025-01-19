@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:flutter_application_1/models/experienceModel.dart';
 import 'package:flutter_application_1/models/userModel.dart';
 import 'package:dio/dio.dart';
@@ -264,6 +265,20 @@ class ExperienceService {
     } catch (e) {
       print('Error al obtener las experiencias: $e');
       return [];
+    }
+  }
+
+  Future<ExperienceModel?> getExperienceById(BuildContext context, String experienceId) async {
+    try {
+      final response = await dio.get('$baseUrl/$experienceId');
+      if (response.statusCode == 200) {
+        return ExperienceModel.fromJson(response.data);
+      } else {
+        throw Exception('Failed to load experience');
+      }
+    } catch (e) {
+      print('Error al obtener la experiencia: $e');
+      return null;
     }
   }
 }

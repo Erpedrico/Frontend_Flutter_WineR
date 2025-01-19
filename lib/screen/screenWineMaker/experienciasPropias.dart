@@ -8,12 +8,12 @@ import 'package:flutter_application_1/widgets/ownexperienceWM.dart';
 import 'package:provider/provider.dart';
 
 
-class ExperienciasPropiasPage extends StatefulWidget {
+class ExperienciasPropiasPageWM extends StatefulWidget {
   @override
-  _ExperienciasPropiasPageState createState() => _ExperienciasPropiasPageState();
+  _ExperienciasPropiasPageWMState createState() => _ExperienciasPropiasPageWMState();
 }
 
-class _ExperienciasPropiasPageState extends State<ExperienciasPropiasPage> {
+class _ExperienciasPropiasPageWMState extends State<ExperienciasPropiasPageWM> {
   late Future<List<ExperienceModel>> _myExperiences;
   final ExperienceService _experienceService = ExperienceService();
 

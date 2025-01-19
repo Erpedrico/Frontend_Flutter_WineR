@@ -5,6 +5,7 @@ import 'package:flutter_application_1/screen/screenWineMaker/homeWM.dart';
 import 'package:flutter_application_1/screen/screenWineMaker/perfilPersonalWM.dart';
 import 'package:flutter_application_1/screen/screenWineMaker/userWM.dart';
 import 'package:flutter_application_1/screen/screenWineMaker/experienciesWM.dart';
+import 'package:flutter_application_1/screen/screenWineMaker/winesWM.dart';
 
 
 class BottomNavScaffoldWM extends StatefulWidget {
@@ -23,7 +24,8 @@ class _BottomNavScaffoldStateWM extends State<BottomNavScaffoldWM> {
     HomePageWM(),
     UserPage(),        
     ExperienciesPageWM(),
-    ExperienciasPropiasPage(),
+    WineWMPage(),
+    ExperienciasPropiasPageWM(),
     CalendarioPageWM(),
     PerfilPage(),           
   ];
@@ -46,7 +48,7 @@ class _BottomNavScaffoldStateWM extends State<BottomNavScaffoldWM> {
         onTap: _onItemTapped, // Llama al método para cambiar de pestaña
         selectedItemColor: Colors.white, // Iconos seleccionados en blanco
         unselectedItemColor: Colors.white60, // Iconos no seleccionados en blanco con opacidad
-        backgroundColor: const Color.fromARGB(255, 173, 13, 88), // Fondo púrpura de la barra de navegación
+        backgroundColor: const Color.fromARGB(255, 173, 13, 88), // Fondo púrpur.a de la barra de navegación
         type: BottomNavigationBarType.fixed, // Asegura que los iconos estén alineados correctamente
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -60,6 +62,10 @@ class _BottomNavScaffoldStateWM extends State<BottomNavScaffoldWM> {
           BottomNavigationBarItem(
             icon: Icon(Icons.wine_bar),
             label: 'Bookings',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.wine_bar_sharp),
+            label: 'Wines',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.wine_bar),
